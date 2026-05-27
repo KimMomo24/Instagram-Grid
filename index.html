@@ -212,7 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- Formato feed: ratio picker -->
     <div class="fg">
-      <label>Formato feed</label>
+      <label>Formato nel modal</label>
       <div class="ratio-btns">
         <button class="ratio-btn active" id="ratio45" onclick="setRatio('4/5')">
           <div class="r-box" style="width:20px;height:25px"></div>4:5
@@ -226,55 +226,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
-    <!-- Cover media -->
+    <!-- Immagine cover -->
     <div class="fg">
-      <label>Media cover</label>
-      <div class="tab-btns">
-        <button class="tab-btn active" id="tabImg" onclick="switchCoverTab('img')"><i class="ti ti-photo"></i> Immagine</button>
-        <button class="tab-btn" id="tabVid" onclick="switchCoverTab('vid')"><i class="ti ti-video"></i> Video</button>
-        <button class="tab-btn" id="tabUrl" onclick="switchCoverTab('url')"><i class="ti ti-link"></i> URL</button>
+      <label>URL immagine cover</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" id="imgUrl" placeholder="Incolla link Google Drive o altro..." oninput="handleUrl('img', this.value)"/>
+        <button class="btn" style="flex-shrink:0" onclick="previewUrl('img')" title="Anteprima"><i class="ti ti-eye"></i></button>
       </div>
-      <div id="coverImgArea">
-        <div class="upload-area">
-          <i class="ti ti-cloud-upload" style="font-size:20px;display:block;margin-bottom:4px"></i>
-          Clicca o trascina immagine
-          <input type="file" accept="image/*" onchange="handleImg(this)"/>
-        </div>
-        <img id="imgPreview" class="img-prev"/>
-      </div>
-      <div id="coverVidArea" style="display:none">
-        <div class="upload-area">
-          <i class="ti ti-player-play" style="font-size:20px;display:block;margin-bottom:4px"></i>
-          Carica video MP4 / MOV
-          <input type="file" accept="video/*" onchange="handleVideo(this)"/>
+      <div style="font-size:11px;color:#aaa;margin-top:4px">💡 Da Google Drive: tasto destro → <em>Condividi</em> → copia link</div>
+      <img id="imgPreview" class="img-prev"/>
+    </div>
+
+    <!-- Video (solo per Reel) -->
+    <div id="videoSection" style="display:none">
+      <div class="fg">
+        <label>URL video (Reel)</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" id="videoUrl" placeholder="Link video Google Drive o YouTube..." oninput="handleUrl('vid', this.value)"/>
+          <button class="btn" style="flex-shrink:0" onclick="previewUrl('vid')" title="Anteprima"><i class="ti ti-eye"></i></button>
         </div>
         <video id="videoPreview" class="video-prev" controls playsinline muted></video>
-        <!-- Cover thumbnail for video -->
-        <div id="coverThumbArea" style="margin-top:10px;display:none">
-          <div class="section-label" style="margin-bottom:6px">Copertina feed (opzionale)</div>
-          <div class="upload-area" style="padding:10px">
-            <i class="ti ti-photo" style="font-size:18px;display:block;margin-bottom:3px"></i>
-            Carica copertina per la griglia
-            <input type="file" accept="image/*" onchange="handleCoverThumb(this)"/>
-          </div>
-          <img id="coverThumbPreview" class="cover-prev"/>
-        </div>
       </div>
-      <div id="coverUrlArea" style="display:none">
-        <input type="text" id="imgUrl" placeholder="URL immagine o video (https://...)" oninput="handleUrl(this.value)" style="margin-top:4px"/>
+      <div class="fg">
+        <label>URL copertina griglia <span style="color:#bbb;font-weight:400">(opzionale — se vuoi un'immagine invece del video)</span></label>
+        <input type="text" id="coverUrl" placeholder="URL immagine copertina..." oninput="handleUrl('cover', this.value)"/>
+        <img id="coverPreview" class="img-prev"/>
       </div>
     </div>
 
     <!-- Slides carosello -->
     <div id="slidesSection" style="display:none">
       <div class="fg">
-        <label>Slide aggiuntive carosello</label>
-        <div class="slide-row" id="slidesPreview"></div>
-        <div class="upload-area" style="margin-top:6px">
-          <i class="ti ti-plus" style="font-size:16px;display:block;margin-bottom:3px"></i>
-          Aggiungi slide (immagini o video)
-          <input type="file" accept="image/*,video/*" multiple onchange="handleSlides(this)"/>
-        </div>
+        <label>URL slide aggiuntive</label>
+        <div id="slidesPreview" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px"></div>
+        <button class="btn" onclick="addSlideInput()" style="width:100%;justify-content:center;border-style:dashed">
+          <i class="ti ti-plus"></i> Aggiungi slide
+        </button>
       </div>
     </div>
 
@@ -524,11 +511,13 @@ function editPost(){
   document.getElementById('fStatus').value=p.tags.includes('Pubblicato')?'Pubblicato':p.tags.includes('In progress')?'In progress':'Idea';
   document.getElementById('fCaption').value=p.caption||'';
   document.getElementById('fHash').value=p.hash||'';
-  document.getElementById('imgUrl').value='';
+  document.getElementById('imgUrl').value=p.img||'';
+  if(document.getElementById('videoUrl'))document.getElementById('videoUrl').value=p.video||'';
+  if(document.getElementById('coverUrl'))document.getElementById('coverUrl').value=p.coverImg||'';
+  if(p.img){const i=document.getElementById('imgPreview');i.src=p.img;i.style.display='block';}else document.getElementById('imgPreview').style.display='none';
+  if(p.video){const v=document.getElementById('videoPreview');v.src=p.video;v.style.display='block';}else document.getElementById('videoPreview').style.display='none';
+  if(p.coverImg){const c=document.getElementById('coverPreview');c.src=p.coverImg;c.style.display='block';}else document.getElementById('coverPreview').style.display='none';
   setRatio(currentRatio);
-  if(currentVideo){switchCoverTab('vid');const v=document.getElementById('videoPreview');v.src=currentVideo;v.style.display='block';document.getElementById('coverThumbArea').style.display='block';if(currentCoverImg){const ci=document.getElementById('coverThumbPreview');ci.src=currentCoverImg;ci.style.display='block';}}
-  else if(currentImg){switchCoverTab('img');const i=document.getElementById('imgPreview');i.src=currentImg;i.style.display='block';}
-  else switchCoverTab('img');
   onTypeChange(document.getElementById('fType').value);
   renderSlidesPreview();
   document.getElementById('addOverlay').classList.add('open');
@@ -538,19 +527,41 @@ function editPost(){
 function openAdd(){
   editMode=false;currentImg='';currentVideo='';currentCoverImg='';currentSlides=[];currentRatio='4/5';activePostId=null;
   document.getElementById('formTitle').textContent='Nuovo post';
-  ['fTitle','fCaption','fHash','imgUrl'].forEach(id=>document.getElementById(id).value='');
+  ['fTitle','fCaption','fHash','imgUrl','videoUrl','coverUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fDate').value='';
   document.getElementById('fType').value='Foto';
   document.getElementById('fStatus').value='Idea';
   document.getElementById('imgPreview').style.display='none';
   document.getElementById('videoPreview').style.display='none';
-  document.getElementById('coverThumbPreview').style.display='none';
-  document.getElementById('coverThumbArea').style.display='none';
-  setRatio('4/5');switchCoverTab('img');onTypeChange('Foto');renderSlidesPreview();
+  document.getElementById('coverPreview').style.display='none';
+  setRatio('4/5');onTypeChange('Foto');renderSlidesPreview();
   document.getElementById('addOverlay').classList.add('open');
 }
 function closeAdd(){document.getElementById('addOverlay').classList.remove('open');}
 function closeAddEv(e){if(e.target===document.getElementById('addOverlay'))closeAdd();}
+
+/* Google Drive URL converter */
+function convertGDrive(url){
+  if(!url)return url;
+  // https://drive.google.com/file/d/FILE_ID/view... → direct
+  const m=url.match(/\/file\/d\/([^/]+)/);
+  if(m)return`https://drive.google.com/uc?export=view&id=${m[1]}`;
+  // https://drive.google.com/open?id=FILE_ID
+  const m2=url.match(/[?&]id=([^&]+)/);
+  if(m2&&url.includes('drive.google.com'))return`https://drive.google.com/uc?export=view&id=${m2[1]}`;
+  return url;
+}
+
+function handleUrl(field, raw){
+  const url=convertGDrive(raw.trim());
+  if(field==='img'){currentImg=url;if(url){const i=document.getElementById('imgPreview');i.src=url;i.style.display='block';}else document.getElementById('imgPreview').style.display='none';}
+  if(field==='vid'){currentVideo=url;if(url){const v=document.getElementById('videoPreview');v.src=url;v.style.display='block';}else document.getElementById('videoPreview').style.display='none';}
+  if(field==='cover'){currentCoverImg=url;if(url){const c=document.getElementById('coverPreview');c.src=url;c.style.display='block';}else document.getElementById('coverPreview').style.display='none';}
+}
+function previewUrl(field){
+  if(field==='img')handleUrl('img',document.getElementById('imgUrl').value);
+  if(field==='vid')handleUrl('vid',document.getElementById('videoUrl').value);
+}
 
 /* ratio */
 function setRatio(r){
@@ -559,43 +570,30 @@ function setRatio(r){
   Object.keys(map).forEach(k=>document.getElementById(map[k]).classList.toggle('active',k===r));
 }
 
-/* cover tab */
-function switchCoverTab(tab){
-  ['img','vid','url'].forEach(t=>{
-    document.getElementById('tab'+{img:'Img',vid:'Vid',url:'Url'}[t]).classList.toggle('active',t===tab);
-    const area=document.getElementById('cover'+{img:'Img',vid:'Vid',url:'Url'}[t]+'Area');
-    if(area)area.style.display=t===tab?'block':'none';
+/* slides — URL rows */
+function addSlideInput(url=''){
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;align-items:center';
+  const idx=currentSlides.length;
+  currentSlides.push(url);
+  row.innerHTML=`<input type="text" placeholder="URL slide ${idx+1}..." value="${url}" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none" oninput="updateSlide(${idx},this.value)"/><button class="btn" style="flex-shrink:0;color:#c00;border-color:#fcc;padding:5px 8px" onclick="removeSlideRow(this,${idx})"><i class="ti ti-x"></i></button>`;
+  document.getElementById('slidesPreview').appendChild(row);
+}
+function updateSlide(i,val){currentSlides[i]=convertGDrive(val.trim());}
+function removeSlideRow(btn,i){currentSlides.splice(i,1);renderSlidesPreview();}
+function renderSlidesPreview(){
+  document.getElementById('slidesPreview').innerHTML='';
+  currentSlides.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;gap:6px;align-items:center';
+    row.innerHTML=`<input type="text" placeholder="URL slide ${i+1}..." value="${s}" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none" oninput="updateSlide(${i},this.value)"/><button class="btn" style="flex-shrink:0;color:#c00;border-color:#fcc;padding:5px 8px" onclick="removeSlideRow(this,${i})"><i class="ti ti-x"></i></button>`;
+    document.getElementById('slidesPreview').appendChild(row);
   });
 }
-function handleImg(inp){
-  const f=inp.files[0];if(!f)return;
-  const r=new FileReader();r.onload=e=>{currentImg=e.target.result;currentVideo='';currentCoverImg='';const i=document.getElementById('imgPreview');i.src=currentImg;i.style.display='block';};r.readAsDataURL(f);
-}
-function handleVideo(inp){
-  const f=inp.files[0];if(!f)return;
-  const r=new FileReader();r.onload=e=>{currentVideo=e.target.result;currentImg='';const v=document.getElementById('videoPreview');v.src=currentVideo;v.style.display='block';document.getElementById('coverThumbArea').style.display='block';};r.readAsDataURL(f);
-}
-function handleCoverThumb(inp){
-  const f=inp.files[0];if(!f)return;
-  const r=new FileReader();r.onload=e=>{currentCoverImg=e.target.result;const ci=document.getElementById('coverThumbPreview');ci.src=currentCoverImg;ci.style.display='block';};r.readAsDataURL(f);
-}
-function handleUrl(v){
-  if(!v)return;
-  if(isVideo(v)){currentVideo=v;currentImg='';document.getElementById('coverThumbArea').style.display='block';}
-  else{currentImg=v;currentVideo='';}
-}
-function handleSlides(inp){
-  Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{currentSlides.push(e.target.result);renderSlidesPreview();};r.readAsDataURL(f);});
-}
-function removeSlide(i){currentSlides.splice(i,1);renderSlidesPreview();}
-function renderSlidesPreview(){
-  document.getElementById('slidesPreview').innerHTML=currentSlides.map((s,i)=>`
-    <div class="slide-thumb">${isVideo(s)?`<video src="${s}" muted></video>`:`<img src="${s}"/>`}
-    <button class="slide-del" onclick="removeSlide(${i})"><i class="ti ti-x" style="font-size:8px"></i></button></div>`).join('');
-}
+
 function onTypeChange(v){
   document.getElementById('slidesSection').style.display=v==='Carosello'?'block':'none';
-  if(v==='Reel'&&document.getElementById('tabVid').classList.contains('active')===false) switchCoverTab('vid');
+  document.getElementById('videoSection').style.display=v==='Reel'?'block':'none';
 }
 
 function savePost(){
@@ -606,7 +604,11 @@ function savePost(){
   const caption=document.getElementById('fCaption').value.trim();
   const hash=document.getElementById('fHash').value.trim();
   const tags=['Instagram',status,...(type!=='Foto'?[type]:[])];
-  const obj={title,date,tags,caption,hash,img:currentImg,video:currentVideo,coverImg:currentCoverImg,slides:currentSlides,ratio:currentRatio};
+  // also convert any typed URL at save time
+  const imgFinal=convertGDrive(document.getElementById('imgUrl').value.trim())||currentImg;
+  const vidFinal=convertGDrive((document.getElementById('videoUrl')||{value:''}).value.trim())||currentVideo;
+  const coverFinal=convertGDrive((document.getElementById('coverUrl')||{value:''}).value.trim())||currentCoverImg;
+  const obj={title,date,tags,caption,hash,img:imgFinal,video:vidFinal,coverImg:coverFinal,slides:[...currentSlides],ratio:currentRatio};
   if(editMode&&activePostId){
     const p=posts.find(x=>x.id===activePostId);
     if(p)Object.assign(p,obj);
