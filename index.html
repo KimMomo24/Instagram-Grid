@@ -430,14 +430,7 @@ function renderGrid(){
         ${(p.tags.includes('Reel')||p.video)?`<div class="play-overlay"><i class="ti ti-player-play-filled"></i></div>`:''}
         <div class="dot-status ${statusClass(p.tags)}"></div>
       </div>
-      <div class="post-info">
-        <div class="post-info-title">${p.title}</div>
-        <div class="post-info-date">${fmtDate(p.date)}</div>
-        <div class="post-info-tags">
-          ${p.tags.filter(t=>t!=='Instagram').map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('')}
-          ${p.cat?`<span class="tag t-off">${p.cat}</span>`:''}
-        </div>
-      </div>
+
     </div>`).join('');
 }
 
