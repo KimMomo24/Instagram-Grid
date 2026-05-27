@@ -1,0 +1,215 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 0 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);
+    margin-bottom: 12px;
+  }
+  .header-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+  .btn-icon {
+    background: none; border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md); padding: 5px 10px; cursor: pointer;
+    font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 5px;
+  }
+  .btn-icon:hover { background: var(--color-background-secondary); }
+  .filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-tag {
+    font-size: 12px; padding: 3px 10px; border-radius: 20px; cursor: pointer;
+    border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary);
+    color: var(--color-text-secondary); transition: all 0.15s;
+  }
+  .filter-tag.active { background: #D32F2F; color: #fff; border-color: #D32F2F; }
+  .count-bar { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+    border-radius: var(--border-radius-lg); overflow: hidden;
+  }
+  .cell {
+    aspect-ratio: 4 / 5; position: relative; cursor: pointer; overflow: hidden;
+    background: var(--color-background-secondary);
+  }
+  .cell:hover .cell-overlay { opacity: 1; }
+  .cell-bg {
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; text-align: center; padding: 10px;
+    position: relative;
+  }
+  .cell-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .cell-overlay i { color: #fff; font-size: 20px; }
+  .cell-status { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
+  .cell-pin { position: absolute; top: 5px; left: 5px; color: #fff; font-size: 12px; opacity: 0.9; }
+
+  .modal-wrap {
+    display: none; margin-top: 12px;
+    background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg); overflow: hidden;
+  }
+  .modal-wrap.open { display: flex; }
+  .modal-img {
+    width: 180px; min-width: 180px; aspect-ratio: 4/5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500; text-align: center; padding: 16px;
+    position: relative; flex-shrink: 0;
+  }
+  .modal-body { flex: 1; padding: 14px 16px; border-left: 0.5px solid var(--color-border-tertiary); overflow-y: auto; }
+  .modal-close {
+    position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.3);
+    border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; z-index: 2;
+  }
+  .modal-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+  .modal-date { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+  .tag-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+  .tag-instagram { background: #E3F2FD; color: #1565C0; }
+  .tag-reel { background: #FCE4EC; color: #880E4F; }
+  .tag-carosello { background: #E8F5E9; color: #1B5E20; }
+  .tag-inprogress { background: #FFF8E1; color: #F57F17; }
+  .tag-done { background: #E8F5E9; color: #1B5E20; }
+  .tag-idea { background: #EDE7F6; color: #4527A0; }
+  .tag-offer { background: #FFEBEE; color: #B71C1C; }
+  .tag-default { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .modal-caption-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .modal-caption {
+    font-size: 12px; color: var(--color-text-secondary);
+    background: var(--color-background-secondary); border-radius: var(--border-radius-md);
+    padding: 8px 10px; line-height: 1.5;
+  }
+  .add-btn {
+    width: 100%; margin-top: 10px; padding: 8px; border: 1px dashed var(--color-border-secondary);
+    border-radius: var(--border-radius-md); background: none; cursor: pointer;
+    color: var(--color-text-secondary); font-size: 13px; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+  }
+  .add-btn:hover { background: var(--color-background-secondary); }
+
+  .cell-bg-red { background: #D32F2F; color: #fff; }
+  .cell-bg-brown { background: #5D4037; color: #fff; }
+  .cell-bg-pink { background: #FCE4EC; color: #880E4F; }
+  .cell-bg-black { background: #212121; color: #fff; }
+  .cell-bg-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .cell-bg-white { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
+  .cell-bg-darkred { background: #B71C1C; color: #fff; }
+  .cell-bg-cream { background: #FFF8F0; color: #5D4037; }
+
+  .status-green { background: #4CAF50; }
+  .status-yellow { background: #FFC107; }
+  .status-blue { background: #2196F3; }
+  .status-gray { background: #9E9E9E; }
+</style>
+
+<h2 class="sr-only">Instagram content planner griglia 4:5</h2>
+
+<div style="padding: 1rem 0;">
+  <div class="header">
+    <i class="ti ti-brand-instagram" aria-hidden="true" style="font-size:18px; color:#D32F2F;"></i>
+    <span class="header-title">Instagram Content Grid</span>
+    <button class="btn-icon" onclick="refresh()"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+    <button class="btn-icon" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+  </div>
+
+  <div class="filters">
+    <span class="filter-tag active" onclick="setFilter('all',this)">Tutti</span>
+    <span class="filter-tag" onclick="setFilter('Reel',this)">Reel</span>
+    <span class="filter-tag" onclick="setFilter('Carosello',this)">Carosello</span>
+    <span class="filter-tag" onclick="setFilter('In progress',this)">In progress</span>
+    <span class="filter-tag" onclick="setFilter('Pubblicato',this)">Pubblicato</span>
+    <span class="filter-tag" onclick="setFilter('Offer and Service',this)">Offer</span>
+  </div>
+
+  <div class="count-bar" id="countBar">12 post</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="modal-wrap" id="modal">
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-date" id="modalDate"></div>
+      <div class="tag-row" id="modalTags"></div>
+      <div class="modal-caption-label">Caption / note</div>
+      <div class="modal-caption" id="modalCaption"></div>
+    </div>
+  </div>
+
+  <button class="add-btn" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i> Aggiungi post</button>
+</div>
+
+<script>
+const posts = [
+  { id:1,  bg:'cell-bg-gray',    icon:'ti-user',      label:'Fashion\nOOTD',              title:'Outfit OOTD – Spring Look',        date:'15 Mar 2025', tags:['Instagram','Pubblicato'],                    caption:'Nuovo look primaverile ✨', pinned:true  },
+  { id:2,  bg:'cell-bg-red',     icon:'',             label:'GIRLS\nCLUB',                title:'Reel Ideas: Girls Club Launch',     date:'18 Mar 2025', tags:['Instagram','Pubblicato','Reel'],             caption:'Lancio del progetto Girls Club 🔴', pinned:false },
+  { id:3,  bg:'cell-bg-brown',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Cover Post',        date:'20 Mar 2025', tags:['Instagram','Pubblicato','Offer and Service'], caption:'Il tuo business merita di brillare 💼', pinned:true  },
+  { id:4,  bg:'cell-bg-pink',    icon:'ti-book',      label:"You don't\nneed to feel\nclosed",title:'Motivational Quote Post',      date:'22 Mar 2025', tags:['Instagram','Pubblicato','Carosello'],        caption:'Smetti di sentirti un libro chiuso.', pinned:false },
+  { id:5,  bg:'cell-bg-black',   icon:'ti-user',      label:'Street\nStyle',              title:'Street Style – Parigi',            date:'24 Mar 2025', tags:['Instagram','Pubblicato','Reel'],             caption:'Shooting a Parigi 🇫🇷', pinned:false },
+  { id:6,  bg:'cell-bg-white',   icon:'ti-list',      label:'Track List\n─────\n☑ 1\n☑ 2\n○ 3', title:'Track List – Contenuti Q2', date:'26 Mar 2025', tags:['Instagram','In progress'],                   caption:'Pianificazione Q2. In lavorazione!', pinned:false },
+  { id:7,  bg:'cell-bg-black',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Dark Edition',      date:'28 Mar 2025', tags:['Instagram','Pubblicato','Offer and Service'], caption:'Versione dark di She Business.', pinned:false },
+  { id:8,  bg:'cell-bg-pink',    icon:'ti-heart',     label:'i love you\ni love you\ni love you', title:'Love Letter Post',         date:'02 Apr 2025', tags:['Instagram','Pubblicato'],                    caption:'Un post dedicato alla community ❤️', pinned:false },
+  { id:9,  bg:'cell-bg-red',     icon:'ti-armchair',  label:'Red\nChair',                 title:'Red Chair – Prop Shoot',           date:'05 Apr 2025', tags:['Instagram','In progress'],                   caption:'La sedia rossa iconica del brand.', pinned:false },
+  { id:10, bg:'cell-bg-darkred', icon:'ti-armchair',  label:'Red\nChair\nDark',           title:'Red Chair – Dark Version',         date:'07 Apr 2025', tags:['Instagram','Idea'],                          caption:'Variante scura, da approvare.', pinned:false },
+  { id:11, bg:'cell-bg-red',     icon:'',             label:'GIRLS\nCLUB',                title:'Girls Club – Second Drop',         date:'10 Apr 2025', tags:['Instagram','In progress','Reel'],            caption:'Secondo drop del format Girls Club.', pinned:false },
+  { id:12, bg:'cell-bg-brown',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Summer Edition',    date:'12 Apr 2025', tags:['Instagram','Idea','Offer and Service'],      caption:'Concept edizione estiva.', pinned:false },
+];
+
+let filtered = [...posts];
+
+const statusColor = t => t.includes('Pubblicato')?'status-green':t.includes('In progress')?'status-yellow':t.includes('Idea')?'status-blue':'status-gray';
+const tagClass = t => ({Instagram:'tag tag-instagram',Reel:'tag tag-reel',Carosello:'tag tag-carosello','In progress':'tag tag-inprogress',Pubblicato:'tag tag-done',Idea:'tag tag-idea','Offer and Service':'tag tag-offer'}[t]||'tag tag-default');
+
+function renderGrid() {
+  document.getElementById('countBar').textContent = filtered.length + ' post';
+  document.getElementById('grid').innerHTML = filtered.map(p => `
+    <div class="cell" onclick="openModal(${p.id})">
+      <div class="cell-bg ${p.bg}">
+        ${p.icon?`<i class="ti ${p.icon}" aria-hidden="true" style="font-size:26px;margin-bottom:6px;"></i>`:''}
+        <span style="white-space:pre-line;line-height:1.3">${p.label}</span>
+      </div>
+      <div class="cell-status ${statusColor(p.tags)}"></div>
+      ${p.pinned?`<i class="ti ti-pin cell-pin" aria-hidden="true"></i>`:''}
+      <div class="cell-overlay"><i class="ti ti-eye" aria-hidden="true"></i></div>
+    </div>`).join('');
+}
+
+function setFilter(f, el) {
+  document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  filtered = f==='all' ? [...posts] : posts.filter(p=>p.tags.includes(f));
+  closeModal(); renderGrid();
+}
+
+function openModal(id) {
+  const p = posts.find(x=>x.id===id); if(!p) return;
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalDate').textContent = p.date;
+  document.getElementById('modalCaption').textContent = p.caption;
+  document.getElementById('modalTags').innerHTML = p.tags.map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('');
+  const mi = document.getElementById('modalImg');
+  mi.className = 'modal-img '+p.bg;
+  mi.innerHTML = `
+    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x" aria-hidden="true"></i></button>
+    ${p.icon?`<i class="ti ${p.icon}" aria-hidden="true" style="font-size:34px;margin-bottom:8px;"></i>`:''}
+    <span style="white-space:pre-line;line-height:1.3">${p.label}</span>`;
+  const m = document.getElementById('modal');
+  m.classList.add('open');
+  m.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function refresh() {
+  const g = document.getElementById('grid');
+  g.style.opacity='0.4';
+  setTimeout(()=>{g.style.opacity='1'; renderGrid();},350);
+}
+
+function openAdd() {
+  sendPrompt('Voglio aggiungere un nuovo post alla griglia Instagram. Aiutami con: titolo, data, tipo (Reel/Carosello/Foto), stato (In progress/Idea/Pubblicato) e caption.');
+}
+
+renderGrid();
+</script>
