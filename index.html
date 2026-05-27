@@ -540,15 +540,22 @@ function openAdd(){
 function closeAdd(){document.getElementById('addOverlay').classList.remove('open');}
 function closeAddEv(e){if(e.target===document.getElementById('addOverlay'))closeAdd();}
 
-/* Google Drive URL converter */
+/* Google Drive URL converter — usa thumbnail che funziona cross-origin */
+function extractGDriveId(url){
+  if(!url)return null;
+  // /file/d/ID/view
+  let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(m)return m[1];
+  // ?id=ID o &id=ID
+  m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m&&url.includes('drive.google'))return m[1];
+  return null;
+}
 function convertGDrive(url){
   if(!url)return url;
-  // https://drive.google.com/file/d/FILE_ID/view... → direct
-  const m=url.match(/\/file\/d\/([^/]+)/);
-  if(m)return`https://drive.google.com/uc?export=view&id=${m[1]}`;
-  // https://drive.google.com/open?id=FILE_ID
-  const m2=url.match(/[?&]id=([^&]+)/);
-  if(m2&&url.includes('drive.google.com'))return`https://drive.google.com/uc?export=view&id=${m2[1]}`;
+  const id=extractGDriveId(url);
+  // thumbnail endpoint: funziona in <img> senza blocchi CORS, sz=w1200 per qualità
+  if(id)return`https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
   return url;
 }
 
@@ -572,22 +579,30 @@ function setRatio(r){
 
 /* slides — URL rows */
 function addSlideInput(url=''){
-  const row=document.createElement('div');
-  row.style.cssText='display:flex;gap:6px;align-items:center';
-  const idx=currentSlides.length;
   currentSlides.push(url);
-  row.innerHTML=`<input type="text" placeholder="URL slide ${idx+1}..." value="${url}" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none" oninput="updateSlide(${idx},this.value)"/><button class="btn" style="flex-shrink:0;color:#c00;border-color:#fcc;padding:5px 8px" onclick="removeSlideRow(this,${idx})"><i class="ti ti-x"></i></button>`;
-  document.getElementById('slidesPreview').appendChild(row);
+  renderSlidesPreview();
+  // focus last input
+  const inputs=document.getElementById('slidesPreview').querySelectorAll('input');
+  if(inputs.length)inputs[inputs.length-1].focus();
 }
-function updateSlide(i,val){currentSlides[i]=convertGDrive(val.trim());}
-function removeSlideRow(btn,i){currentSlides.splice(i,1);renderSlidesPreview();}
+function removeSlideRow(i){currentSlides.splice(i,1);renderSlidesPreview();}
 function renderSlidesPreview(){
-  document.getElementById('slidesPreview').innerHTML='';
+  const cont=document.getElementById('slidesPreview');
+  cont.innerHTML='';
   currentSlides.forEach((s,i)=>{
     const row=document.createElement('div');
-    row.style.cssText='display:flex;gap:6px;align-items:center';
-    row.innerHTML=`<input type="text" placeholder="URL slide ${i+1}..." value="${s}" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none" oninput="updateSlide(${i},this.value)"/><button class="btn" style="flex-shrink:0;color:#c00;border-color:#fcc;padding:5px 8px" onclick="removeSlideRow(this,${i})"><i class="ti ti-x"></i></button>`;
-    document.getElementById('slidesPreview').appendChild(row);
+    row.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:4px';
+    const inp=document.createElement('input');
+    inp.type='text';inp.placeholder=`URL slide ${i+1}...`;inp.value=s;
+    inp.style.cssText='flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none';
+    inp.oninput=()=>{currentSlides[i]=convertGDrive(inp.value.trim());};
+    inp.onblur=()=>{inp.value=currentSlides[i];};// show converted url
+    const del=document.createElement('button');
+    del.className='btn';del.style.cssText='flex-shrink:0;color:#c00;border-color:#fcc;padding:5px 8px';
+    del.innerHTML='<i class="ti ti-x"></i>';
+    del.onclick=()=>removeSlideRow(i);
+    row.appendChild(inp);row.appendChild(del);
+    cont.appendChild(row);
   });
 }
 
