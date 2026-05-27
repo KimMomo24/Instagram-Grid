@@ -23,8 +23,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-.post-card{display:flex;flex-direction:column;cursor:pointer;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #efefef;transition:box-shadow .15s}
+.post-card{display:flex;flex-direction:column;cursor:pointer;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #efefef;transition:box-shadow .15s,opacity .15s,transform .15s}
 .post-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.12)}
+
+/* DRAG REORDER */
+.reorder-mode .post-card{cursor:grab;border:1.5px solid #ddd}
+.reorder-mode .post-card:active{cursor:grabbing}
+.post-card.dragging{opacity:.35;transform:scale(.96);box-shadow:none!important;border-color:#D32F2F!important}
+.post-card.drag-over{border:2px solid #D32F2F!important;box-shadow:0 0 0 2px rgba(211,47,47,.25)!important;transform:scale(1.03)}
+.reorder-mode .post-info{pointer-events:none}
+.reorder-banner{display:none;background:#FFF3E0;border:1px solid #FFB74D;border-radius:8px;padding:7px 12px;font-size:12px;color:#E65100;margin-bottom:8px;align-items:center;gap:6px}
+.reorder-banner.show{display:flex}
+.btn-orange{background:#E65100;color:#fff;border-color:#E65100}
+.btn-orange:hover{background:#BF360C}
+
+/* touch drag ghost */
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.8;border-radius:8px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);transform:rotate(2deg);transition:none}
 .post-thumb{aspect-ratio:4/5;position:relative;overflow:hidden;background:#111;flex-shrink:0}
 .post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
 .placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;padding:10px;line-height:1.4;position:absolute;inset:0}
@@ -164,9 +178,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <i class="ti ti-upload"></i> Import
       <input type="file" accept=".json" onchange="importJSON(this)" style="display:none"/>
     </label>
+    <button class="btn" id="reorderBtn" onclick="toggleReorder()"><i class="ti ti-arrows-move"></i> Riordina</button>
     <button class="btn" onclick="refresh()"><i class="ti ti-refresh"></i></button>
     <button class="btn btn-red" onclick="openAdd()"><i class="ti ti-plus"></i> Nuovo post</button>
   </div>
+</div>
+
+<div class="reorder-banner" id="reorderBanner">
+  <i class="ti ti-arrows-move"></i>
+  <span>Trascina i post per riordinarli</span>
+  <button class="btn btn-orange" style="margin-left:auto;padding:3px 10px" onclick="toggleReorder()"><i class="ti ti-check"></i> Fine</button>
 </div>
 
 <div class="filters">
@@ -401,7 +422,7 @@ function thumbContent(p){
 function renderGrid(){
   document.getElementById('countBar').textContent=filtered.length+' post';
   document.getElementById('grid').innerHTML=filtered.map(p=>`
-    <div class="post-card" onclick="openDetail(${p.id})">
+    <div class="post-card" data-id="${p.id}" onclick="if(!reorderMode)openDetail(${p.id})">
       <div class="post-thumb">
         ${thumbContent(p)}
         ${p.tags.includes('Reel')?`<div class="badge-reel"><i class="ti ti-player-play" style="font-size:9px"></i> Reel</div>`:''}
@@ -640,7 +661,82 @@ function savePost(){
   savePosts();filtered=[...posts];resetFilters();closeAdd();renderGrid();
 }
 
-function refresh(){const g=document.getElementById('grid');g.style.opacity='.4';setTimeout(()=>{g.style.opacity='1';renderGrid();},300);}
+function refresh(){const g=document.getElementById('grid');g.style.opacity='.4';setTimeout(()=>{g.style.opacity='1';renderGrid();attachDrag();},300);}
+
+/* ── REORDER ── */
+let reorderMode=false,dragSrcId=null;
+
+function toggleReorder(){
+  reorderMode=!reorderMode;
+  document.getElementById('reorderBtn').classList.toggle('btn-orange',reorderMode);
+  document.getElementById('reorderBanner').classList.toggle('show',reorderMode);
+  document.getElementById('grid').classList.toggle('reorder-mode',reorderMode);
+  if(reorderMode){resetFilters();renderGrid();showToast('Trascina per riordinare');}
+  attachDrag();
+}
+
+function attachDrag(){
+  document.querySelectorAll('.post-card').forEach(card=>{
+    card.draggable=reorderMode;
+    card.ondragstart=reorderMode?onDragStart:null;
+    card.ondragover=reorderMode?onDragOver:null;
+    card.ondragleave=reorderMode?onDragLeave:null;
+    card.ondrop=reorderMode?onDrop:null;
+    card.ondragend=reorderMode?onDragEnd:null;
+    card.ontouchstart=reorderMode?onTouchStart:null;
+    // block detail open in reorder mode
+    card.onclick=reorderMode?null:card.onclick;
+  });
+}
+
+/* desktop drag */
+function onDragStart(e){dragSrcId=+this.dataset.id;this.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function onDragOver(e){if(!reorderMode)return;e.preventDefault();document.querySelectorAll('.post-card').forEach(c=>c.classList.remove('drag-over'));this.classList.add('drag-over');}
+function onDragLeave(){this.classList.remove('drag-over');}
+function onDrop(e){e.preventDefault();const tid=+this.dataset.id;if(dragSrcId!==tid)swapPosts(dragSrcId,tid);}
+function onDragEnd(){document.querySelectorAll('.post-card').forEach(c=>c.classList.remove('dragging','drag-over'));dragSrcId=null;}
+
+/* touch drag */
+let touchGhost=null,touchSrcId=null,touchLastTarget=null;
+function onTouchStart(e){
+  if(!reorderMode)return;
+  touchSrcId=+this.dataset.id;
+  const rect=this.getBoundingClientRect(),t=e.touches[0];
+  touchGhost=this.cloneNode(true);
+  touchGhost.className='drag-ghost';
+  touchGhost.style.cssText=`width:${rect.width}px;height:${rect.height}px;left:${t.clientX-rect.width/2}px;top:${t.clientY-rect.height/2}px`;
+  document.body.appendChild(touchGhost);
+  this.classList.add('dragging');
+  document.addEventListener('touchmove',onTouchMove,{passive:false});
+  document.addEventListener('touchend',onTouchEnd);
+}
+function onTouchMove(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  if(touchGhost){touchGhost.style.left=(t.clientX-touchGhost.offsetWidth/2)+'px';touchGhost.style.top=(t.clientY-touchGhost.offsetHeight/2)+'px';}
+  touchGhost.style.display='none';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  touchGhost.style.display='';
+  const card=el&&el.closest('.post-card');
+  document.querySelectorAll('.post-card').forEach(c=>c.classList.remove('drag-over'));
+  if(card&&card.dataset.id&&+card.dataset.id!==touchSrcId){card.classList.add('drag-over');touchLastTarget=+card.dataset.id;}
+  else touchLastTarget=null;
+}
+function onTouchEnd(){
+  document.removeEventListener('touchmove',onTouchMove);
+  document.removeEventListener('touchend',onTouchEnd);
+  if(touchGhost){touchGhost.remove();touchGhost=null;}
+  document.querySelectorAll('.post-card').forEach(c=>c.classList.remove('dragging','drag-over'));
+  if(touchSrcId&&touchLastTarget&&touchSrcId!==touchLastTarget)swapPosts(touchSrcId,touchLastTarget);
+  touchSrcId=null;touchLastTarget=null;
+}
+
+function swapPosts(aId,bId){
+  const ai=posts.findIndex(p=>p.id===aId),bi=posts.findIndex(p=>p.id===bId);
+  if(ai<0||bi<0)return;
+  [posts[ai],posts[bi]]=[posts[bi],posts[ai]];
+  filtered=[...posts];savePosts();renderGrid();attachDrag();
+}
 
 renderGrid();
 </script>
