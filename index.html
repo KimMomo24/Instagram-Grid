@@ -7,29 +7,31 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fafafa;color:#1a1a1a;padding:20px;max-width:760px;margin:0 auto}
-.header{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #e5e5e5;margin-bottom:12px}
-.header-title{font-size:15px;font-weight:600;flex:1}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fafafa;color:#1a1a1a;padding:14px;max-width:780px;margin:0 auto;overflow-x:hidden}
+.header{display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid #e5e5e5;margin-bottom:10px;flex-wrap:wrap}
+.header-title{font-size:15px;font-weight:600;flex:1;min-width:100px}
+.header-actions{display:flex;gap:6px;flex-wrap:wrap}
 .btn{background:none;border:1px solid #ddd;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:12px;color:#555;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:inherit}
 .btn:hover{background:#f0f0f0}
 .btn-red{background:#D32F2F;color:#fff;border-color:#D32F2F}
 .btn-red:hover{background:#B71C1C}
-.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.filters{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
 .ftag{font-size:12px;padding:4px 11px;border-radius:20px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#555;transition:all .15s}
 .ftag.active{background:#D32F2F;color:#fff;border-color:#D32F2F}
-.count{font-size:12px;color:#888;margin-bottom:10px}
+.count{font-size:12px;color:#888;margin-bottom:8px}
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
 .post-card{display:flex;flex-direction:column;cursor:pointer;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #efefef;transition:box-shadow .15s}
 .post-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.12)}
-.post-thumb{aspect-ratio:4/5;position:relative;overflow:hidden;background:#f0f0f0;flex-shrink:0}
-.post-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.post-thumb{aspect-ratio:4/5;position:relative;overflow:hidden;background:#111;flex-shrink:0}
+.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
 .placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;padding:10px;line-height:1.4;position:absolute;inset:0}
-.badge-reel{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
-.badge-car{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
-.dot-status{position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8)}
-.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.12)}
+.badge-reel{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px;z-index:2}
+.badge-car{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px;z-index:2}
+.dot-status{position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8);z-index:2}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.18);z-index:1}
 .play-overlay i{font-size:28px;color:#fff;filter:drop-shadow(0 1px 4px rgba(0,0,0,.5))}
 .post-info{padding:7px 8px 8px;flex-shrink:0}
 .post-info-title{font-size:11px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
@@ -41,83 +43,77 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .t-pub{background:#E8F5E9;color:#2E7D32}.t-idea{background:#EDE7F6;color:#4527A0}
 .t-off{background:#FFEBEE;color:#B71C1C}.t-def{background:#f5f5f5;color:#666}
 .s-green{background:#4CAF50}.s-yellow{background:#FFC107}.s-blue{background:#2196F3}.s-gray{background:#ccc}
-
-/* PLACEHOLDERS BG */
 .bg-red{background:#D32F2F;color:#fff}.bg-brown{background:#5D4037;color:#fff}
 .bg-pink{background:#FCE4EC;color:#880E4F}.bg-black{background:#212121;color:#fff}
 .bg-gray{background:#ececec;color:#666}.bg-darkred{background:#B71C1C;color:#fff}
 .bg-cream{background:#FFF8F0;color:#5D4037}.bg-white{background:#fff;color:#1a1a1a}
 
 /* DETAIL OVERLAY */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:16px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:12px}
 .overlay.open{display:flex}
-
-/* MODAL — side by side on wide, stack on narrow */
 .modal{
-  background:#fff;border-radius:16px;
-  width:100%;max-width:640px;max-height:92vh;
+  background:#fff;border-radius:18px;
+  width:100%;max-width:660px;max-height:94vh;
   display:flex;flex-direction:row;overflow:hidden;
-  position:relative;
+  position:relative;box-shadow:0 20px 60px rgba(0,0,0,.4);
 }
-@media(max-width:520px){.modal{flex-direction:column;max-height:92vh;overflow-y:auto}}
+@media(max-width:520px){.modal{flex-direction:column;max-height:94vh;overflow-y:auto}}
 
-/* LEFT: 4:5 carousel */
+/* MODAL LEFT — video/carousel */
 .modal-left{
-  flex-shrink:0;
-  width:260px;         /* fixed width */
-  position:relative;
-  background:#111;
-  border-radius:16px 0 0 16px;
-  overflow:hidden;
+  flex-shrink:0;width:270px;
+  position:relative;background:#000;
+  border-radius:18px 0 0 18px;overflow:hidden;
 }
-@media(max-width:520px){.modal-left{width:100%;border-radius:16px 16px 0 0}}
+@media(max-width:520px){.modal-left{width:100%;border-radius:18px 18px 0 0}}
 
-/* The carousel track */
+/* carousel track */
 .carousel-track-wrap{
-  width:100%;
-  /* height driven by aspect-ratio on the wrapper */
-  aspect-ratio:4/5;
-  overflow:hidden;
-  position:relative;
+  width:100%;aspect-ratio:4/5;
+  overflow:hidden;position:relative;
+  touch-action:pan-y;user-select:none;
 }
 .carousel-track{
-  display:flex;
-  height:100%;
-  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:flex;height:100%;
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
 .carousel-slide-item{
-  flex-shrink:0;
-  width:100%;
-  height:100%;
-  position:relative;
+  flex-shrink:0;width:100%;height:100%;
+  position:relative;overflow:hidden;background:#000;
 }
 .carousel-slide-item img{width:100%;height:100%;object-fit:cover;display:block}
-.carousel-slide-item .placeholder{font-size:15px}
+.carousel-slide-item video{
+  width:100%;height:100%;object-fit:cover;display:block;
+  background:#000;
+}
 
-/* nav arrows */
+/* arrows */
 .car-arrow{
   position:absolute;top:50%;transform:translateY(-50%);
-  background:rgba(0,0,0,.45);color:#fff;border:none;
-  width:30px;height:30px;border-radius:50%;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:16px;z-index:5;
+  background:rgba(0,0,0,.5);color:#fff;border:none;
+  width:32px;height:32px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:17px;z-index:10;
+  transition:background .15s;
 }
-.car-arrow.prev{left:8px}
-.car-arrow.next{right:8px}
-.car-arrow:disabled{opacity:.25;pointer-events:none}
+.car-arrow:hover{background:rgba(0,0,0,.75)}
+.car-arrow.prev{left:8px}.car-arrow.next{right:8px}
+.car-arrow:disabled{opacity:.2;pointer-events:none}
 
 /* dots */
-.car-dots{
-  position:absolute;bottom:10px;left:0;right:0;
-  display:flex;justify-content:center;gap:5px;z-index:5;
-}
-.car-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:background .2s}
-.car-dot.active{background:#fff}
+.car-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:10}
+.car-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:all .2s}
+.car-dot.active{background:#fff;width:18px;border-radius:3px}
 
-/* badges on carousel */
-.modal-badge-reel{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:4px;z-index:6}
-.modal-close-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:10}
+/* reel badge */
+.modal-badge-reel{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:4px;z-index:15}
+.modal-close-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:20;transition:background .15s}
+.modal-close-btn:hover{background:rgba(0,0,0,.8)}
 
-/* RIGHT: info */
+/* slide counter badge (top right for carousel) */
+.slide-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 9px;border-radius:5px;z-index:15;font-weight:600}
+
+/* RIGHT */
 .modal-right{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .modal-title{font-size:14px;font-weight:600;line-height:1.3}
 .modal-date{font-size:12px;color:#aaa}
@@ -141,14 +137,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .upload-area:hover{border-color:#D32F2F;color:#D32F2F}
 .upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .img-prev{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:none;margin-top:8px}
+.video-prev{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:none;margin-top:8px;background:#000}
 .fr{display:flex;gap:10px}.fr .fg{flex:1}
 .slide-row{display:flex;gap:6px;overflow-x:auto;padding:4px 0;margin-top:6px}
 .slide-thumb{min-width:58px;aspect-ratio:4/5;border-radius:6px;overflow:hidden;border:1px solid #eee;background:#f0f0f0;position:relative;flex-shrink:0}
-.slide-thumb img{width:100%;height:100%;object-fit:cover}
+.slide-thumb img,.slide-thumb video{width:100%;height:100%;object-fit:cover}
 .slide-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.45);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
 .add-footer{width:100%;margin-top:12px;padding:10px;border:1px dashed #ddd;border-radius:10px;background:none;cursor:pointer;color:#aaa;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit}
 .add-footer:hover{background:#f5f5f5}
+.tab-btns{display:flex;gap:6px;margin-bottom:10px}
+.tab-btn{flex:1;padding:7px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;color:#666;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
+.tab-btn.active{border-color:#D32F2F;color:#D32F2F;background:#FFF5F5}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#323232;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -156,8 +158,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="header">
   <i class="ti ti-brand-instagram" style="font-size:20px;color:#D32F2F"></i>
   <span class="header-title">Instagram Content Grid</span>
-  <button class="btn" onclick="refresh()"><i class="ti ti-refresh"></i> Refresh</button>
-  <button class="btn btn-red" onclick="openAdd()"><i class="ti ti-plus"></i> Nuovo post</button>
+  <div class="header-actions">
+    <button class="btn" onclick="exportJSON()" title="Esporta backup"><i class="ti ti-download"></i> Export</button>
+    <label class="btn" title="Importa backup" style="cursor:pointer">
+      <i class="ti ti-upload"></i> Import
+      <input type="file" accept=".json" onchange="importJSON(this)" style="display:none"/>
+    </label>
+    <button class="btn" onclick="refresh()"><i class="ti ti-refresh"></i></button>
+    <button class="btn btn-red" onclick="openAdd()"><i class="ti ti-plus"></i> Nuovo post</button>
+  </div>
 </div>
 
 <div class="filters">
@@ -177,8 +186,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detailOverlay" onclick="closeDetailEv(event)">
   <div class="modal">
-
-    <!-- LEFT: 4:5 carousel -->
     <div class="modal-left">
       <div class="carousel-track-wrap" id="carWrap">
         <div class="carousel-track" id="carTrack"></div>
@@ -186,11 +193,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="car-arrow next" id="carNext" onclick="carMove(1)"><i class="ti ti-chevron-right"></i></button>
         <div class="car-dots" id="carDots"></div>
         <div id="reelBadge" style="display:none" class="modal-badge-reel"><i class="ti ti-player-play" style="font-size:10px"></i> Reel</div>
+        <div id="slideCounter" style="display:none" class="slide-counter">1 / 1</div>
       </div>
       <button class="modal-close-btn" onclick="closeDetail()"><i class="ti ti-x"></i></button>
     </div>
-
-    <!-- RIGHT: info -->
     <div class="modal-right">
       <div>
         <div class="modal-title" id="dTitle"></div>
@@ -210,7 +216,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn" style="color:#c00;border-color:#fcc" onclick="deletePost()"><i class="ti ti-trash"></i> Elimina</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -220,15 +225,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="modal-close-btn" style="position:absolute;top:14px;right:14px;background:#eee;color:#333" onclick="closeAdd()"><i class="ti ti-x"></i></button>
     <h3 id="formTitle">Nuovo post</h3>
 
-    <div class="fg">
-      <label>Immagine cover</label>
-      <div class="upload-area">
-        <i class="ti ti-cloud-upload" style="font-size:22px;display:block;margin-bottom:5px"></i>
-        Clicca o trascina l'immagine (4:5)
-        <input type="file" accept="image/*" onchange="handleImg(this)"/>
+    <!-- Cover media tabs -->
+    <div class="fg" id="coverSection">
+      <label>Media cover</label>
+      <div class="tab-btns">
+        <button class="tab-btn active" id="tabImg" onclick="switchCoverTab('img')"><i class="ti ti-photo"></i> Immagine</button>
+        <button class="tab-btn" id="tabVid" onclick="switchCoverTab('vid')"><i class="ti ti-video"></i> Video (Reel)</button>
+        <button class="tab-btn" id="tabUrl" onclick="switchCoverTab('url')"><i class="ti ti-link"></i> URL</button>
       </div>
-      <img id="imgPreview" class="img-prev"/>
-      <input type="text" id="imgUrl" placeholder="Oppure incolla URL immagine..." style="margin-top:6px" oninput="handleUrl(this.value)"/>
+      <!-- image upload -->
+      <div id="coverImgArea">
+        <div class="upload-area">
+          <i class="ti ti-cloud-upload" style="font-size:22px;display:block;margin-bottom:5px"></i>
+          Clicca o trascina l'immagine (4:5)
+          <input type="file" accept="image/*" onchange="handleImg(this)"/>
+        </div>
+        <img id="imgPreview" class="img-prev"/>
+      </div>
+      <!-- video upload -->
+      <div id="coverVidArea" style="display:none">
+        <div class="upload-area">
+          <i class="ti ti-player-play" style="font-size:22px;display:block;margin-bottom:5px"></i>
+          Carica video MP4 / MOV (verticale 4:5 o 9:16)
+          <input type="file" accept="video/*" onchange="handleVideo(this)"/>
+        </div>
+        <video id="videoPreview" class="video-prev" controls playsinline muted></video>
+      </div>
+      <!-- url -->
+      <div id="coverUrlArea" style="display:none">
+        <input type="text" id="imgUrl" placeholder="URL immagine o video (https://...)" oninput="handleUrl(this.value)" style="margin-top:4px"/>
+      </div>
     </div>
 
     <div id="slidesSection" style="display:none">
@@ -237,8 +263,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="slide-row" id="slidesPreview"></div>
         <div class="upload-area" style="margin-top:6px">
           <i class="ti ti-plus" style="font-size:18px;display:block;margin-bottom:3px"></i>
-          Aggiungi slide
-          <input type="file" accept="image/*" multiple onchange="handleSlides(this)"/>
+          Aggiungi slide (immagini o video)
+          <input type="file" accept="image/*,video/*" multiple onchange="handleSlides(this)"/>
         </div>
       </div>
     </div>
@@ -247,7 +273,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label>Titolo / idea contenuto</label>
       <input type="text" id="fTitle" placeholder="Es. Reel Ideas: Founder Story"/>
     </div>
-
     <div class="fr">
       <div class="fg">
         <label>Data</label>
@@ -255,14 +280,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="fg">
         <label>Formato</label>
-        <select id="fType" onchange="toggleCar(this.value)">
+        <select id="fType" onchange="onTypeChange(this.value)">
           <option value="Foto">Foto</option>
           <option value="Reel">Reel</option>
           <option value="Carosello">Carosello</option>
         </select>
       </div>
     </div>
-
     <div class="fr">
       <div class="fg">
         <label>Stato</label>
@@ -284,7 +308,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </select>
       </div>
     </div>
-
     <div class="fg">
       <label>Caption</label>
       <textarea id="fCaption" placeholder="Scrivi la caption del post..."></textarea>
@@ -293,7 +316,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label>Hashtag</label>
       <textarea id="fHash" placeholder="#businesscoach #girlboss..." style="min-height:50px"></textarea>
     </div>
-
     <div class="btn-row">
       <button class="btn" onclick="closeAdd()">Annulla</button>
       <button class="btn btn-red" onclick="savePost()"><i class="ti ti-check"></i> Salva</button>
@@ -301,37 +323,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+const STORAGE_KEY='ig_content_grid_v2';
 const BGOPTS=['bg-red','bg-brown','bg-pink','bg-black','bg-gray','bg-darkred','bg-cream'];
 const ICONOPTS=['ti-brand-instagram','ti-briefcase','ti-heart','ti-camera','ti-bulb','ti-star','ti-user'];
 
-let posts=[
-  {id:1,img:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Reel Ideas: Founder Story + Behind the Scenes',date:'2025-03-11',tags:['Instagram','In progress','Reel'],cat:'Offer and Service',caption:'Reasons you need a business coach:\n✨ Clarify your business vision\n🎯 Set actionable, realistic goals\n💬 Gain unbiased, expert feedback\n⚡ Overcome obstacles and challenges\n👑 Strengthen leadership capabilities',hash:'#businesscoach #coaching #girlboss #womeninbusiness',pinned:false},
-  {id:2,img:'',slides:[],bg:'bg-brown',icon:'ti-briefcase',label:'SHE\nBUSINESS',title:'She Business – Cover Post',date:'2025-03-20',tags:['Instagram','Pubblicato','Offer and Service'],cat:'She Business',caption:'Il tuo business merita di brillare 💼\nLink in bio per scoprire di più.',hash:'#shebusiness #businesswoman',pinned:true},
-  {id:3,img:'',slides:[],bg:'bg-pink',icon:'ti-book',label:"Non sei\nun libro\nchiuso",title:'Motivational Quote – Carosello',date:'2025-03-22',tags:['Instagram','Pubblicato','Carosello'],cat:'Motivational',caption:'Smetti di sentirti un libro chiuso.\nLa tua storia merita di essere raccontata. 📖',hash:'#motivation #quotes #selfgrowth',pinned:false},
-  {id:4,img:'',slides:[],bg:'bg-black',icon:'ti-user',label:'Street\nStyle',title:'Street Style – Behind the Scenes Parigi',date:'2025-03-24',tags:['Instagram','Pubblicato','Reel'],cat:'Behind the Scenes',caption:'Shooting a Parigi 🇫🇷\nBehind the scenes del giorno più speciale.',hash:'#paris #streetstyle #ootd',pinned:false},
-  {id:5,img:'',slides:[],bg:'bg-gray',icon:'ti-list',label:'Track\nList Q2',title:'Track List – Contenuti Q2',date:'2025-03-26',tags:['Instagram','In progress'],cat:'',caption:'Pianificazione contenuti del secondo trimestre.',hash:'',pinned:false},
-  {id:6,img:'',slides:[],bg:'bg-pink',icon:'ti-heart',label:'i love you\ni love you',title:'Love Letter – Community Post',date:'2025-04-02',tags:['Instagram','Pubblicato'],cat:'',caption:'Un post dedicato alla community ❤️\nGrazie per essere qui.',hash:'#community #love #gratitude',pinned:false},
-  {id:7,img:'',slides:[],bg:'bg-darkred',icon:'ti-armchair',label:'Red\nChair\nDark',title:'Red Chair – Dark Version',date:'2025-04-07',tags:['Instagram','Idea'],cat:'',caption:'Variante scura del prop shoot. Ancora da approvare.',hash:'',pinned:false},
-  {id:8,img:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Girls Club – Second Drop',date:'2025-04-10',tags:['Instagram','In progress','Reel'],cat:'Girls Club',caption:'Secondo drop del format Girls Club.\nStiamo lavorando alla caption.',hash:'#girlsclub #community',pinned:false},
-  {id:9,img:'',slides:[],bg:'bg-cream',icon:'ti-bulb',label:'Idea\nBTS',title:'Behind the Scenes – Studio Day',date:'2025-04-15',tags:['Instagram','Idea','Carosello'],cat:'Behind the Scenes',caption:'Giornata in studio! Carosello con le foto del backstage.',hash:'#bts #studiosession',pinned:false},
+const DEFAULT_POSTS=[
+  {id:1,img:'',video:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Reel Ideas: Founder Story + Behind the Scenes',date:'2025-03-11',tags:['Instagram','In progress','Reel'],cat:'Offer and Service',caption:'Reasons you need a business coach:\n✨ Clarify your business vision\n🎯 Set actionable, realistic goals\n💬 Gain unbiased, expert feedback\n⚡ Overcome obstacles and challenges\n👑 Strengthen leadership capabilities',hash:'#businesscoach #coaching #girlboss #womeninbusiness',pinned:false},
+  {id:2,img:'',video:'',slides:[],bg:'bg-brown',icon:'ti-briefcase',label:'SHE\nBUSINESS',title:'She Business – Cover Post',date:'2025-03-20',tags:['Instagram','Pubblicato','Offer and Service'],cat:'She Business',caption:'Il tuo business merita di brillare 💼\nLink in bio per scoprire di più.',hash:'#shebusiness #businesswoman',pinned:true},
+  {id:3,img:'',video:'',slides:[],bg:'bg-pink',icon:'ti-book',label:"Non sei\nun libro\nchiuso",title:'Motivational Quote – Carosello',date:'2025-03-22',tags:['Instagram','Pubblicato','Carosello'],cat:'Motivational',caption:'Smetti di sentirti un libro chiuso.\nLa tua storia merita di essere raccontata. 📖',hash:'#motivation #quotes #selfgrowth',pinned:false},
+  {id:4,img:'',video:'',slides:[],bg:'bg-black',icon:'ti-user',label:'Street\nStyle',title:'Street Style – Behind the Scenes Parigi',date:'2025-03-24',tags:['Instagram','Pubblicato','Reel'],cat:'Behind the Scenes',caption:'Shooting a Parigi 🇫🇷\nBehind the scenes del giorno più speciale.',hash:'#paris #streetstyle #ootd',pinned:false},
+  {id:5,img:'',video:'',slides:[],bg:'bg-gray',icon:'ti-list',label:'Track\nList Q2',title:'Track List – Contenuti Q2',date:'2025-03-26',tags:['Instagram','In progress'],cat:'',caption:'Pianificazione contenuti del secondo trimestre.',hash:'',pinned:false},
+  {id:6,img:'',video:'',slides:[],bg:'bg-pink',icon:'ti-heart',label:'i love you\ni love you',title:'Love Letter – Community Post',date:'2025-04-02',tags:['Instagram','Pubblicato'],cat:'',caption:'Un post dedicato alla community ❤️\nGrazie per essere qui.',hash:'#community #love #gratitude',pinned:false},
+  {id:7,img:'',video:'',slides:[],bg:'bg-darkred',icon:'ti-armchair',label:'Red\nChair\nDark',title:'Red Chair – Dark Version',date:'2025-04-07',tags:['Instagram','Idea'],cat:'',caption:'Variante scura del prop shoot. Ancora da approvare.',hash:'',pinned:false},
+  {id:8,img:'',video:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Girls Club – Second Drop',date:'2025-04-10',tags:['Instagram','In progress','Reel'],cat:'Girls Club',caption:'Secondo drop del format Girls Club.',hash:'#girlsclub #community',pinned:false},
+  {id:9,img:'',video:'',slides:[],bg:'bg-cream',icon:'ti-bulb',label:'Idea\nBTS',title:'Behind the Scenes – Studio Day',date:'2025-04-15',tags:['Instagram','Idea','Carosello'],cat:'Behind the Scenes',caption:'Giornata in studio! Carosello con le foto del backstage.',hash:'#bts #studiosession',pinned:false},
 ];
 
+function loadPosts(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){const p=JSON.parse(raw);if(Array.isArray(p.posts)&&p.posts.length>0)return{posts:p.posts,nextId:p.nextId||p.posts.reduce((m,x)=>Math.max(m,x.id),0)+1};}
+  }catch(e){}
+  return{posts:DEFAULT_POSTS.map(p=>({video:'',...p})),nextId:10};
+}
+function savePosts(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({posts,nextId}));}catch(e){}}
+
+const loaded=loadPosts();
+let posts=loaded.posts;
+let nextId=loaded.nextId;
 let filtered=[...posts];
-let nextId=10;
-let activePostId=null;
-let editMode=false;
-let currentImg='';
-let currentSlides=[];
-let carIdx=0;
-let carSlides=[];
+let activePostId=null,editMode=false,currentImg='',currentVideo='',currentSlides=[],coverTab='img';
+let carIdx=0,carSlides=[];
+
+/* ── EXPORT / IMPORT ── */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({posts,nextId,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ig_backup.json';a.click();URL.revokeObjectURL(a.href);
+  showToast('Backup esportato ✓');
+}
+function importJSON(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!Array.isArray(d.posts))throw new Error('Formato non valido');
+      if(!confirm(`Importare ${d.posts.length} post? I dati attuali saranno sostituiti.`))return;
+      posts=d.posts.map(p=>({video:'',...p}));
+      nextId=d.nextId||posts.reduce((m,p)=>Math.max(m,p.id),0)+1;
+      filtered=[...posts];savePosts();resetFilters();renderGrid();
+      showToast(`${posts.length} post importati ✓`);
+    }catch(err){alert('Errore: '+err.message);}
+  };
+  r.readAsText(f);inp.value='';
+}
+
+/* ── TOAST ── */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),2500);}
 
 /* ── UTILS ── */
-function tagClass(t){return{Instagram:'tag t-ig',Reel:'tag t-reel',Carosello:'tag t-car','In progress':'tag t-prog',Pubblicato:'tag t-pub',Idea:'tag t-idea','Offer and Service':'tag t-off'}[t]||'tag t-def'}
-function statusClass(tags){return tags.includes('Pubblicato')?'s-green':tags.includes('In progress')?'s-yellow':tags.includes('Idea')?'s-blue':'s-gray'}
-function fmtDate(d){if(!d)return'';try{return new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})}catch{return d}}
+function isVideo(src){return src&&(src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?|$)/i.test(src));}
+function tagClass(t){return{Instagram:'tag t-ig',Reel:'tag t-reel',Carosello:'tag t-car','In progress':'tag t-prog',Pubblicato:'tag t-pub',Idea:'tag t-idea','Offer and Service':'tag t-off'}[t]||'tag t-def';}
+function statusClass(tags){return tags.includes('Pubblicato')?'s-green':tags.includes('In progress')?'s-yellow':tags.includes('Idea')?'s-blue':'s-gray';}
+function fmtDate(d){if(!d)return'';try{return new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});}catch{return d;}}
 
 function thumbContent(p){
+  // Reel with video
+  if(p.video)return`<video src="${p.video}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"></video>`;
   if(p.img)return`<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/>`;
   return`<div class="placeholder ${p.bg}">${p.icon?`<i class="ti ${p.icon}" style="font-size:26px;margin-bottom:6px"></i>`:''}<span style="white-space:pre-line;line-height:1.3">${p.label}</span></div>`;
 }
@@ -344,8 +405,8 @@ function renderGrid(){
       <div class="post-thumb">
         ${thumbContent(p)}
         ${p.tags.includes('Reel')?`<div class="badge-reel"><i class="ti ti-player-play" style="font-size:9px"></i> Reel</div>`:''}
-        ${p.tags.includes('Carosello')?`<div class="badge-car"><i class="ti ti-layout-columns" style="font-size:9px"></i>${p.slides.length?` ${p.slides.length+1}`:''}</div>`:''}
-        ${p.tags.includes('Reel')?`<div class="play-overlay"><i class="ti ti-player-play-filled"></i></div>`:''}
+        ${p.tags.includes('Carosello')?`<div class="badge-car"><i class="ti ti-layout-columns" style="font-size:9px"></i>${p.slides&&p.slides.length?` ${p.slides.length+1}`:''}</div>`:''}
+        ${(p.tags.includes('Reel')||p.video)?`<div class="play-overlay"><i class="ti ti-player-play-filled"></i></div>`:''}
         <div class="dot-status ${statusClass(p.tags)}"></div>
       </div>
       <div class="post-info">
@@ -365,57 +426,89 @@ function setFilter(f,el){
   filtered=f==='all'?[...posts]:posts.filter(p=>p.tags.includes(f)||p.cat===f);
   renderGrid();
 }
+function resetFilters(){
+  document.querySelectorAll('.ftag').forEach((t,i)=>t.classList.toggle('active',i===0));
+  filtered=[...posts];
+}
 
-/* ── CAROUSEL LOGIC ── */
+/* ── CAROUSEL ── */
 function buildCarousel(p){
   carSlides=[];
-  // slide 0 = cover
-  carSlides.push({img:p.img,bg:p.bg,icon:p.icon,label:p.label});
+  // slide 0: video or image cover
+  if(p.video) carSlides.push({type:'video',src:p.video});
+  else carSlides.push({type:p.img?'img':'placeholder',src:p.img,bg:p.bg,icon:p.icon,label:p.label});
   // extra slides
-  (p.slides||[]).forEach(s=>carSlides.push({img:s,bg:'bg-black',icon:'',label:''}));
-  carIdx=0;
-  renderCarousel();
+  (p.slides||[]).forEach(s=>{
+    if(isVideo(s)) carSlides.push({type:'video',src:s});
+    else carSlides.push({type:'img',src:s});
+  });
+  carIdx=0;renderCarousel();
 }
 
 function renderCarousel(){
   const track=document.getElementById('carTrack');
   track.innerHTML=carSlides.map((s,i)=>{
-    if(s.img) return`<div class="carousel-slide-item"><img src="${s.img}" alt="slide ${i+1}"/></div>`;
+    if(s.type==='video')
+      return`<div class="carousel-slide-item"><video src="${s.src}" controls playsinline ${i===0?'autoplay':''} loop style="width:100%;height:100%;object-fit:cover;background:#000"></video></div>`;
+    if(s.type==='img')
+      return`<div class="carousel-slide-item"><img src="${s.src}" alt="slide ${i+1}"/></div>`;
     return`<div class="carousel-slide-item"><div class="placeholder ${s.bg}">${s.icon?`<i class="ti ${s.icon}" style="font-size:34px;margin-bottom:10px"></i>`:''}<span style="white-space:pre-line;line-height:1.3;font-size:15px">${s.label}</span></div></div>`;
   }).join('');
   updateCarPos(false);
 
+  const many=carSlides.length>1;
   // dots
   const dots=document.getElementById('carDots');
-  if(carSlides.length>1){
-    dots.innerHTML=carSlides.map((_,i)=>`<div class="car-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
-    dots.style.display='flex';
-  }else{dots.style.display='none';}
-
-  // arrows visibility
-  document.getElementById('carPrev').style.display=carSlides.length>1?'flex':'none';
-  document.getElementById('carNext').style.display=carSlides.length>1?'flex':'none';
+  if(many){dots.innerHTML=carSlides.map((_,i)=>`<div class="car-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');dots.style.display='flex';}
+  else dots.style.display='none';
+  // counter
+  const ctr=document.getElementById('slideCounter');
+  if(many){ctr.textContent=`1 / ${carSlides.length}`;ctr.style.display='block';}
+  else ctr.style.display='none';
+  // arrows
+  ['carPrev','carNext'].forEach(id=>document.getElementById(id).style.display=many?'flex':'none');
+  // swipe
+  initSwipe();
 }
 
 function updateCarPos(animate=true){
   const track=document.getElementById('carTrack');
-  track.style.transition=animate?'transform .35s cubic-bezier(.4,0,.2,1)':'none';
+  track.style.transition=animate?'transform .32s cubic-bezier(.4,0,.2,1)':'none';
   track.style.transform=`translateX(${-carIdx*100}%)`;
   document.getElementById('carPrev').disabled=carIdx===0;
   document.getElementById('carNext').disabled=carIdx===carSlides.length-1;
   document.querySelectorAll('.car-dot').forEach((d,i)=>d.classList.toggle('active',i===carIdx));
+  const ctr=document.getElementById('slideCounter');
+  if(ctr.style.display!=='none')ctr.textContent=`${carIdx+1} / ${carSlides.length}`;
+  // pause all videos except current
+  document.querySelectorAll('#carTrack video').forEach((v,i)=>{
+    if(i===carIdx){if(v.paused)v.play().catch(()=>{});}
+    else{v.pause();}
+  });
 }
 
 function carMove(dir){carIdx=Math.max(0,Math.min(carSlides.length-1,carIdx+dir));updateCarPos();}
 function goSlide(i){carIdx=i;updateCarPos();}
+
+/* swipe touch */
+function initSwipe(){
+  const wrap=document.getElementById('carWrap');
+  let sx=0,sy=0,dragging=false;
+  wrap.onpointerdown=e=>{sx=e.clientX;sy=e.clientY;dragging=true;wrap.setPointerCapture(e.pointerId);};
+  wrap.onpointerup=e=>{
+    if(!dragging)return;dragging=false;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>30){carMove(dx<0?1:-1);}
+  };
+  wrap.onpointercancel=()=>{dragging=false;};
+}
 
 /* ── DETAIL MODAL ── */
 function openDetail(id){
   const p=posts.find(x=>x.id===id);if(!p)return;
   activePostId=id;
   buildCarousel(p);
-  // reel badge
-  document.getElementById('reelBadge').style.display=p.tags.includes('Reel')?'flex':'none';
+  document.getElementById('reelBadge').style.display=p.tags.includes('Reel')||p.video?'flex':'none';
   document.getElementById('dTitle').textContent=p.title;
   document.getElementById('dDate').textContent=fmtDate(p.date);
   document.getElementById('dTags').innerHTML=[...p.tags,p.cat].filter(Boolean).map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('');
@@ -424,13 +517,18 @@ function openDetail(id){
   if(p.hash){document.getElementById('dHash').textContent=p.hash;hb.style.display='block';}else{hb.style.display='none';}
   document.getElementById('detailOverlay').classList.add('open');
 }
-
 function closeDetailEv(e){if(e.target===document.getElementById('detailOverlay'))closeDetail();}
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');activePostId=null;}
+function closeDetail(){
+  // stop all videos
+  document.querySelectorAll('#carTrack video').forEach(v=>v.pause());
+  document.getElementById('detailOverlay').classList.remove('open');
+  activePostId=null;
+}
 
 function editPost(){
   const p=posts.find(x=>x.id===activePostId);if(!p)return;
-  closeDetail(); editMode=true; currentImg=p.img||''; currentSlides=[...(p.slides||[])];
+  closeDetail();editMode=true;
+  currentImg=p.img||'';currentVideo=p.video||'';currentSlides=[...(p.slides||[])];
   document.getElementById('formTitle').textContent='Modifica post';
   document.getElementById('fTitle').value=p.title;
   document.getElementById('fDate').value=p.date;
@@ -440,9 +538,11 @@ function editPost(){
   document.getElementById('fCaption').value=p.caption||'';
   document.getElementById('fHash').value=p.hash||'';
   document.getElementById('imgUrl').value='';
-  const prev=document.getElementById('imgPreview');
-  if(currentImg){prev.src=currentImg;prev.style.display='block';}else{prev.style.display='none';}
-  toggleCar(document.getElementById('fType').value);
+  // restore cover preview
+  if(currentVideo){switchCoverTab('vid');const v=document.getElementById('videoPreview');v.src=currentVideo;v.style.display='block';}
+  else if(currentImg){switchCoverTab('img');const i=document.getElementById('imgPreview');i.src=currentImg;i.style.display='block';}
+  else switchCoverTab('img');
+  onTypeChange(document.getElementById('fType').value);
   renderSlidesPreview();
   document.getElementById('addOverlay').classList.add('open');
 }
@@ -451,13 +551,12 @@ function deletePost(){
   if(!confirm('Eliminare questo post?'))return;
   posts=posts.filter(x=>x.id!==activePostId);
   filtered=filtered.filter(x=>x.id!==activePostId);
-  closeDetail(); renderGrid();
+  savePosts();closeDetail();renderGrid();showToast('Post eliminato');
 }
 
 /* ── ADD MODAL ── */
 function openAdd(){
-  editMode=false; currentImg=''; currentSlides=[];
-  activePostId=null;
+  editMode=false;currentImg='';currentVideo='';currentSlides=[];activePostId=null;
   document.getElementById('formTitle').textContent='Nuovo post';
   ['fTitle','fCaption','fHash','imgUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fDate').value='';
@@ -465,28 +564,58 @@ function openAdd(){
   document.getElementById('fStatus').value='Idea';
   document.getElementById('fCat').value='';
   document.getElementById('imgPreview').style.display='none';
-  toggleCar('Foto'); renderSlidesPreview();
+  document.getElementById('videoPreview').style.display='none';
+  switchCoverTab('img');onTypeChange('Foto');renderSlidesPreview();
   document.getElementById('addOverlay').classList.add('open');
 }
 function closeAdd(){document.getElementById('addOverlay').classList.remove('open');}
 function closeAddEv(e){if(e.target===document.getElementById('addOverlay'))closeAdd();}
 
+function switchCoverTab(tab){
+  coverTab=tab;
+  ['img','vid','url'].forEach(t=>{
+    document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+    const area=document.getElementById('cover'+t[0].toUpperCase()+t.slice(1)+'Area');
+    if(area)area.style.display=t===tab?'block':'none';
+  });
+}
 function handleImg(inp){
   const f=inp.files[0];if(!f)return;
-  const r=new FileReader();r.onload=e=>{currentImg=e.target.result;showPrev(currentImg);};r.readAsDataURL(f);
+  const r=new FileReader();r.onload=e=>{currentImg=e.target.result;currentVideo='';const i=document.getElementById('imgPreview');i.src=currentImg;i.style.display='block';};r.readAsDataURL(f);
 }
-function handleUrl(v){if(v){currentImg=v;showPrev(v);}}
-function showPrev(src){const p=document.getElementById('imgPreview');p.src=src;p.style.display='block';}
-
+function handleVideo(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{currentVideo=e.target.result;currentImg='';const v=document.getElementById('videoPreview');v.src=currentVideo;v.style.display='block';};r.readAsDataURL(f);
+}
+function handleUrl(v){
+  if(!v)return;
+  if(isVideo(v)){currentVideo=v;currentImg='';}
+  else{currentImg=v;currentVideo='';}
+  const ip=document.getElementById('imgPreview');
+  const vp=document.getElementById('videoPreview');
+  if(currentVideo){vp.src=currentVideo;vp.style.display='block';ip.style.display='none';}
+  else{ip.src=currentImg;ip.style.display='block';vp.style.display='none';}
+}
 function handleSlides(inp){
-  Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{currentSlides.push(e.target.result);renderSlidesPreview();};r.readAsDataURL(f);});
+  Array.from(inp.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>{currentSlides.push(e.target.result);renderSlidesPreview();};
+    r.readAsDataURL(f);
+  });
 }
 function removeSlide(i){currentSlides.splice(i,1);renderSlidesPreview();}
 function renderSlidesPreview(){
   document.getElementById('slidesPreview').innerHTML=currentSlides.map((s,i)=>`
-    <div class="slide-thumb"><img src="${s}"/><button class="slide-del" onclick="removeSlide(${i})"><i class="ti ti-x" style="font-size:8px"></i></button></div>`).join('');
+    <div class="slide-thumb">
+      ${isVideo(s)?`<video src="${s}" muted></video>`:`<img src="${s}"/>`}
+      <button class="slide-del" onclick="removeSlide(${i})"><i class="ti ti-x" style="font-size:8px"></i></button>
+    </div>`).join('');
 }
-function toggleCar(v){document.getElementById('slidesSection').style.display=v==='Carosello'?'block':'none';}
+function onTypeChange(v){
+  document.getElementById('slidesSection').style.display=v==='Carosello'?'block':'none';
+  // auto-switch to video tab for reels
+  if(v==='Reel'&&coverTab==='img')switchCoverTab('vid');
+}
 
 function savePost(){
   const title=document.getElementById('fTitle').value.trim()||'Nuovo post';
@@ -499,17 +628,16 @@ function savePost(){
   const tags=['Instagram',status,...(type!=='Foto'?[type]:[])];
   if(editMode&&activePostId){
     const p=posts.find(x=>x.id===activePostId);
-    if(p)Object.assign(p,{title,date,tags,cat,caption,hash,img:currentImg,slides:currentSlides});
+    if(p)Object.assign(p,{title,date,tags,cat,caption,hash,img:currentImg,video:currentVideo,slides:currentSlides});
+    showToast('Post aggiornato ✓');
   }else{
     const bg=BGOPTS[nextId%BGOPTS.length];
     const icon=ICONOPTS[nextId%ICONOPTS.length];
     const label=title.split(' ').slice(0,2).join('\n');
-    posts.unshift({id:nextId++,img:currentImg,slides:[...currentSlides],bg,icon,label,title,date,tags,cat,caption,hash,pinned:false});
+    posts.unshift({id:nextId++,img:currentImg,video:currentVideo,slides:[...currentSlides],bg,icon,label,title,date,tags,cat,caption,hash,pinned:false});
+    showToast('Post aggiunto ✓');
   }
-  filtered=[...posts];
-  document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('active'));
-  document.querySelector('.ftag').classList.add('active');
-  closeAdd(); renderGrid();
+  savePosts();filtered=[...posts];resetFilters();closeAdd();renderGrid();
 }
 
 function refresh(){const g=document.getElementById('grid');g.style.opacity='.4';setTimeout(()=>{g.style.opacity='1';renderGrid();},300);}
