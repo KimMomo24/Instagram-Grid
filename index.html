@@ -1,215 +1,520 @@
-
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Instagram Content Grid</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  .header {
-    display: flex; align-items: center; gap: 8px;
-    padding: 0 0 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);
-    margin-bottom: 12px;
-  }
-  .header-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
-  .btn-icon {
-    background: none; border: 0.5px solid var(--color-border-secondary);
-    border-radius: var(--border-radius-md); padding: 5px 10px; cursor: pointer;
-    font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 5px;
-  }
-  .btn-icon:hover { background: var(--color-background-secondary); }
-  .filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-  .filter-tag {
-    font-size: 12px; padding: 3px 10px; border-radius: 20px; cursor: pointer;
-    border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary);
-    color: var(--color-text-secondary); transition: all 0.15s;
-  }
-  .filter-tag.active { background: #D32F2F; color: #fff; border-color: #D32F2F; }
-  .count-bar { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
-  .grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
-    border-radius: var(--border-radius-lg); overflow: hidden;
-  }
-  .cell {
-    aspect-ratio: 4 / 5; position: relative; cursor: pointer; overflow: hidden;
-    background: var(--color-background-secondary);
-  }
-  .cell:hover .cell-overlay { opacity: 1; }
-  .cell-bg {
-    width: 100%; height: 100%; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 500; text-align: center; padding: 10px;
-    position: relative;
-  }
-  .cell-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.45);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .cell-overlay i { color: #fff; font-size: 20px; }
-  .cell-status { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
-  .cell-pin { position: absolute; top: 5px; left: 5px; color: #fff; font-size: 12px; opacity: 0.9; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fafafa;color:#1a1a1a;padding:20px;max-width:760px;margin:0 auto}
+.header{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #e5e5e5;margin-bottom:12px}
+.header-title{font-size:15px;font-weight:600;flex:1}
+.btn{background:none;border:1px solid #ddd;border-radius:8px;padding:5px 11px;cursor:pointer;font-size:12px;color:#555;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:inherit}
+.btn:hover{background:#f0f0f0}
+.btn-red{background:#D32F2F;color:#fff;border-color:#D32F2F}
+.btn-red:hover{background:#B71C1C}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.ftag{font-size:12px;padding:4px 11px;border-radius:20px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#555;transition:all .15s}
+.ftag.active{background:#D32F2F;color:#fff;border-color:#D32F2F}
+.count{font-size:12px;color:#888;margin-bottom:10px}
 
-  .modal-wrap {
-    display: none; margin-top: 12px;
-    background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-lg); overflow: hidden;
-  }
-  .modal-wrap.open { display: flex; }
-  .modal-img {
-    width: 180px; min-width: 180px; aspect-ratio: 4/5;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 500; text-align: center; padding: 16px;
-    position: relative; flex-shrink: 0;
-  }
-  .modal-body { flex: 1; padding: 14px 16px; border-left: 0.5px solid var(--color-border-tertiary); overflow-y: auto; }
-  .modal-close {
-    position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.3);
-    border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; z-index: 2;
-  }
-  .modal-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
-  .modal-date { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
-  .tag-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
-  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
-  .tag-instagram { background: #E3F2FD; color: #1565C0; }
-  .tag-reel { background: #FCE4EC; color: #880E4F; }
-  .tag-carosello { background: #E8F5E9; color: #1B5E20; }
-  .tag-inprogress { background: #FFF8E1; color: #F57F17; }
-  .tag-done { background: #E8F5E9; color: #1B5E20; }
-  .tag-idea { background: #EDE7F6; color: #4527A0; }
-  .tag-offer { background: #FFEBEE; color: #B71C1C; }
-  .tag-default { background: var(--color-background-secondary); color: var(--color-text-secondary); }
-  .modal-caption-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; }
-  .modal-caption {
-    font-size: 12px; color: var(--color-text-secondary);
-    background: var(--color-background-secondary); border-radius: var(--border-radius-md);
-    padding: 8px 10px; line-height: 1.5;
-  }
-  .add-btn {
-    width: 100%; margin-top: 10px; padding: 8px; border: 1px dashed var(--color-border-secondary);
-    border-radius: var(--border-radius-md); background: none; cursor: pointer;
-    color: var(--color-text-secondary); font-size: 13px; display: flex; align-items: center;
-    justify-content: center; gap: 6px;
-  }
-  .add-btn:hover { background: var(--color-background-secondary); }
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.post-card{display:flex;flex-direction:column;cursor:pointer;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #efefef;transition:box-shadow .15s}
+.post-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.post-thumb{aspect-ratio:4/5;position:relative;overflow:hidden;background:#f0f0f0;flex-shrink:0}
+.post-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;padding:10px;line-height:1.4;position:absolute;inset:0}
+.badge-reel{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
+.badge-car{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
+.dot-status{position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8)}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.12)}
+.play-overlay i{font-size:28px;color:#fff;filter:drop-shadow(0 1px 4px rgba(0,0,0,.5))}
+.post-info{padding:7px 8px 8px;flex-shrink:0}
+.post-info-title{font-size:11px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.post-info-date{font-size:10px;color:#bbb;margin-bottom:4px}
+.post-info-tags{display:flex;gap:3px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.t-ig{background:#E3F2FD;color:#1565C0}.t-reel{background:#FCE4EC;color:#880E4F}
+.t-car{background:#E8F5E9;color:#1B5E20}.t-prog{background:#FFF8E1;color:#F57F17}
+.t-pub{background:#E8F5E9;color:#2E7D32}.t-idea{background:#EDE7F6;color:#4527A0}
+.t-off{background:#FFEBEE;color:#B71C1C}.t-def{background:#f5f5f5;color:#666}
+.s-green{background:#4CAF50}.s-yellow{background:#FFC107}.s-blue{background:#2196F3}.s-gray{background:#ccc}
 
-  .cell-bg-red { background: #D32F2F; color: #fff; }
-  .cell-bg-brown { background: #5D4037; color: #fff; }
-  .cell-bg-pink { background: #FCE4EC; color: #880E4F; }
-  .cell-bg-black { background: #212121; color: #fff; }
-  .cell-bg-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
-  .cell-bg-white { background: var(--color-background-primary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
-  .cell-bg-darkred { background: #B71C1C; color: #fff; }
-  .cell-bg-cream { background: #FFF8F0; color: #5D4037; }
+/* PLACEHOLDERS BG */
+.bg-red{background:#D32F2F;color:#fff}.bg-brown{background:#5D4037;color:#fff}
+.bg-pink{background:#FCE4EC;color:#880E4F}.bg-black{background:#212121;color:#fff}
+.bg-gray{background:#ececec;color:#666}.bg-darkred{background:#B71C1C;color:#fff}
+.bg-cream{background:#FFF8F0;color:#5D4037}.bg-white{background:#fff;color:#1a1a1a}
 
-  .status-green { background: #4CAF50; }
-  .status-yellow { background: #FFC107; }
-  .status-blue { background: #2196F3; }
-  .status-gray { background: #9E9E9E; }
+/* DETAIL OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+
+/* MODAL — side by side on wide, stack on narrow */
+.modal{
+  background:#fff;border-radius:16px;
+  width:100%;max-width:640px;max-height:92vh;
+  display:flex;flex-direction:row;overflow:hidden;
+  position:relative;
+}
+@media(max-width:520px){.modal{flex-direction:column;max-height:92vh;overflow-y:auto}}
+
+/* LEFT: 4:5 carousel */
+.modal-left{
+  flex-shrink:0;
+  width:260px;         /* fixed width */
+  position:relative;
+  background:#111;
+  border-radius:16px 0 0 16px;
+  overflow:hidden;
+}
+@media(max-width:520px){.modal-left{width:100%;border-radius:16px 16px 0 0}}
+
+/* The carousel track */
+.carousel-track-wrap{
+  width:100%;
+  /* height driven by aspect-ratio on the wrapper */
+  aspect-ratio:4/5;
+  overflow:hidden;
+  position:relative;
+}
+.carousel-track{
+  display:flex;
+  height:100%;
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.carousel-slide-item{
+  flex-shrink:0;
+  width:100%;
+  height:100%;
+  position:relative;
+}
+.carousel-slide-item img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel-slide-item .placeholder{font-size:15px}
+
+/* nav arrows */
+.car-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.45);color:#fff;border:none;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;z-index:5;
+}
+.car-arrow.prev{left:8px}
+.car-arrow.next{right:8px}
+.car-arrow:disabled{opacity:.25;pointer-events:none}
+
+/* dots */
+.car-dots{
+  position:absolute;bottom:10px;left:0;right:0;
+  display:flex;justify-content:center;gap:5px;z-index:5;
+}
+.car-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:background .2s}
+.car-dot.active{background:#fff}
+
+/* badges on carousel */
+.modal-badge-reel{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:4px;z-index:6}
+.modal-close-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:10}
+
+/* RIGHT: info */
+.modal-right{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.modal-title{font-size:14px;font-weight:600;line-height:1.3}
+.modal-date{font-size:12px;color:#aaa}
+.modal-tag-row{display:flex;gap:5px;flex-wrap:wrap}
+.section-label{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.modal-caption{font-size:13px;color:#333;background:#f7f7f7;border-radius:8px;padding:10px 12px;line-height:1.6;white-space:pre-wrap}
+.modal-hash{font-size:12px;color:#1565C0;background:#E3F2FD;border-radius:8px;padding:8px 12px;line-height:1.6;word-break:break-word}
+.modal-actions{display:flex;gap:8px;margin-top:4px}
+
+/* ADD MODAL */
+.add-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:16px}
+.add-overlay.open{display:flex}
+.add-modal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:22px;position:relative}
+.add-modal h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.fg{margin-bottom:12px}
+.fg label{font-size:12px;color:#888;display:block;margin-bottom:4px;font-weight:500}
+.fg input,.fg select,.fg textarea{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 11px;font-size:13px;font-family:inherit;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#D32F2F}
+.fg textarea{resize:vertical;min-height:70px}
+.upload-area{border:2px dashed #ddd;border-radius:10px;padding:18px;text-align:center;cursor:pointer;color:#aaa;font-size:13px;position:relative;transition:border-color .15s}
+.upload-area:hover{border-color:#D32F2F;color:#D32F2F}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-prev{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;display:none;margin-top:8px}
+.fr{display:flex;gap:10px}.fr .fg{flex:1}
+.slide-row{display:flex;gap:6px;overflow-x:auto;padding:4px 0;margin-top:6px}
+.slide-thumb{min-width:58px;aspect-ratio:4/5;border-radius:6px;overflow:hidden;border:1px solid #eee;background:#f0f0f0;position:relative;flex-shrink:0}
+.slide-thumb img{width:100%;height:100%;object-fit:cover}
+.slide-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.45);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.add-footer{width:100%;margin-top:12px;padding:10px;border:1px dashed #ddd;border-radius:10px;background:none;cursor:pointer;color:#aaa;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit}
+.add-footer:hover{background:#f5f5f5}
 </style>
+</head>
+<body>
 
-<h2 class="sr-only">Instagram content planner griglia 4:5</h2>
+<div class="header">
+  <i class="ti ti-brand-instagram" style="font-size:20px;color:#D32F2F"></i>
+  <span class="header-title">Instagram Content Grid</span>
+  <button class="btn" onclick="refresh()"><i class="ti ti-refresh"></i> Refresh</button>
+  <button class="btn btn-red" onclick="openAdd()"><i class="ti ti-plus"></i> Nuovo post</button>
+</div>
 
-<div style="padding: 1rem 0;">
-  <div class="header">
-    <i class="ti ti-brand-instagram" aria-hidden="true" style="font-size:18px; color:#D32F2F;"></i>
-    <span class="header-title">Instagram Content Grid</span>
-    <button class="btn-icon" onclick="refresh()"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
-    <button class="btn-icon" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+<div class="filters">
+  <span class="ftag active" onclick="setFilter('all',this)">Tutti</span>
+  <span class="ftag" onclick="setFilter('Reel',this)">Reel</span>
+  <span class="ftag" onclick="setFilter('Carosello',this)">Carosello</span>
+  <span class="ftag" onclick="setFilter('In progress',this)">In progress</span>
+  <span class="ftag" onclick="setFilter('Pubblicato',this)">Pubblicato</span>
+  <span class="ftag" onclick="setFilter('Idea',this)">Idea</span>
+  <span class="ftag" onclick="setFilter('Offer and Service',this)">Offer</span>
+</div>
+
+<div class="count" id="countBar">0 post</div>
+<div class="grid" id="grid"></div>
+<button class="add-footer" onclick="openAdd()"><i class="ti ti-plus"></i> Aggiungi post</button>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailOverlay" onclick="closeDetailEv(event)">
+  <div class="modal">
+
+    <!-- LEFT: 4:5 carousel -->
+    <div class="modal-left">
+      <div class="carousel-track-wrap" id="carWrap">
+        <div class="carousel-track" id="carTrack"></div>
+        <button class="car-arrow prev" id="carPrev" onclick="carMove(-1)"><i class="ti ti-chevron-left"></i></button>
+        <button class="car-arrow next" id="carNext" onclick="carMove(1)"><i class="ti ti-chevron-right"></i></button>
+        <div class="car-dots" id="carDots"></div>
+        <div id="reelBadge" style="display:none" class="modal-badge-reel"><i class="ti ti-player-play" style="font-size:10px"></i> Reel</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeDetail()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <!-- RIGHT: info -->
+    <div class="modal-right">
+      <div>
+        <div class="modal-title" id="dTitle"></div>
+        <div class="modal-date" id="dDate"></div>
+      </div>
+      <div class="modal-tag-row" id="dTags"></div>
+      <div id="dCaptionBlock">
+        <div class="section-label">Caption</div>
+        <div class="modal-caption" id="dCaption"></div>
+      </div>
+      <div id="dHashBlock" style="display:none">
+        <div class="section-label">Hashtag</div>
+        <div class="modal-hash" id="dHash"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="editPost()"><i class="ti ti-edit"></i> Modifica</button>
+        <button class="btn" style="color:#c00;border-color:#fcc" onclick="deletePost()"><i class="ti ti-trash"></i> Elimina</button>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <div class="filters">
-    <span class="filter-tag active" onclick="setFilter('all',this)">Tutti</span>
-    <span class="filter-tag" onclick="setFilter('Reel',this)">Reel</span>
-    <span class="filter-tag" onclick="setFilter('Carosello',this)">Carosello</span>
-    <span class="filter-tag" onclick="setFilter('In progress',this)">In progress</span>
-    <span class="filter-tag" onclick="setFilter('Pubblicato',this)">Pubblicato</span>
-    <span class="filter-tag" onclick="setFilter('Offer and Service',this)">Offer</span>
-  </div>
+<!-- ADD / EDIT MODAL -->
+<div class="add-overlay" id="addOverlay" onclick="closeAddEv(event)">
+  <div class="add-modal">
+    <button class="modal-close-btn" style="position:absolute;top:14px;right:14px;background:#eee;color:#333" onclick="closeAdd()"><i class="ti ti-x"></i></button>
+    <h3 id="formTitle">Nuovo post</h3>
 
-  <div class="count-bar" id="countBar">12 post</div>
-  <div class="grid" id="grid"></div>
+    <div class="fg">
+      <label>Immagine cover</label>
+      <div class="upload-area">
+        <i class="ti ti-cloud-upload" style="font-size:22px;display:block;margin-bottom:5px"></i>
+        Clicca o trascina l'immagine (4:5)
+        <input type="file" accept="image/*" onchange="handleImg(this)"/>
+      </div>
+      <img id="imgPreview" class="img-prev"/>
+      <input type="text" id="imgUrl" placeholder="Oppure incolla URL immagine..." style="margin-top:6px" oninput="handleUrl(this.value)"/>
+    </div>
 
-  <div class="modal-wrap" id="modal">
-    <div class="modal-img" id="modalImg"></div>
-    <div class="modal-body">
-      <div class="modal-title" id="modalTitle"></div>
-      <div class="modal-date" id="modalDate"></div>
-      <div class="tag-row" id="modalTags"></div>
-      <div class="modal-caption-label">Caption / note</div>
-      <div class="modal-caption" id="modalCaption"></div>
+    <div id="slidesSection" style="display:none">
+      <div class="fg">
+        <label>Slide aggiuntive carosello</label>
+        <div class="slide-row" id="slidesPreview"></div>
+        <div class="upload-area" style="margin-top:6px">
+          <i class="ti ti-plus" style="font-size:18px;display:block;margin-bottom:3px"></i>
+          Aggiungi slide
+          <input type="file" accept="image/*" multiple onchange="handleSlides(this)"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Titolo / idea contenuto</label>
+      <input type="text" id="fTitle" placeholder="Es. Reel Ideas: Founder Story"/>
+    </div>
+
+    <div class="fr">
+      <div class="fg">
+        <label>Data</label>
+        <input type="date" id="fDate"/>
+      </div>
+      <div class="fg">
+        <label>Formato</label>
+        <select id="fType" onchange="toggleCar(this.value)">
+          <option value="Foto">Foto</option>
+          <option value="Reel">Reel</option>
+          <option value="Carosello">Carosello</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fg">
+        <label>Stato</label>
+        <select id="fStatus">
+          <option value="Idea">💡 Idea</option>
+          <option value="In progress">⏳ In progress</option>
+          <option value="Pubblicato">✅ Pubblicato</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Categoria</label>
+        <select id="fCat">
+          <option value="">Nessuna</option>
+          <option value="Offer and Service">Offer and Service</option>
+          <option value="Girls Club">Girls Club</option>
+          <option value="She Business">She Business</option>
+          <option value="Behind the Scenes">Behind the Scenes</option>
+          <option value="Motivational">Motivational</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Caption</label>
+      <textarea id="fCaption" placeholder="Scrivi la caption del post..."></textarea>
+    </div>
+    <div class="fg">
+      <label>Hashtag</label>
+      <textarea id="fHash" placeholder="#businesscoach #girlboss..." style="min-height:50px"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="closeAdd()">Annulla</button>
+      <button class="btn btn-red" onclick="savePost()"><i class="ti ti-check"></i> Salva</button>
     </div>
   </div>
-
-  <button class="add-btn" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i> Aggiungi post</button>
 </div>
 
 <script>
-const posts = [
-  { id:1,  bg:'cell-bg-gray',    icon:'ti-user',      label:'Fashion\nOOTD',              title:'Outfit OOTD – Spring Look',        date:'15 Mar 2025', tags:['Instagram','Pubblicato'],                    caption:'Nuovo look primaverile ✨', pinned:true  },
-  { id:2,  bg:'cell-bg-red',     icon:'',             label:'GIRLS\nCLUB',                title:'Reel Ideas: Girls Club Launch',     date:'18 Mar 2025', tags:['Instagram','Pubblicato','Reel'],             caption:'Lancio del progetto Girls Club 🔴', pinned:false },
-  { id:3,  bg:'cell-bg-brown',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Cover Post',        date:'20 Mar 2025', tags:['Instagram','Pubblicato','Offer and Service'], caption:'Il tuo business merita di brillare 💼', pinned:true  },
-  { id:4,  bg:'cell-bg-pink',    icon:'ti-book',      label:"You don't\nneed to feel\nclosed",title:'Motivational Quote Post',      date:'22 Mar 2025', tags:['Instagram','Pubblicato','Carosello'],        caption:'Smetti di sentirti un libro chiuso.', pinned:false },
-  { id:5,  bg:'cell-bg-black',   icon:'ti-user',      label:'Street\nStyle',              title:'Street Style – Parigi',            date:'24 Mar 2025', tags:['Instagram','Pubblicato','Reel'],             caption:'Shooting a Parigi 🇫🇷', pinned:false },
-  { id:6,  bg:'cell-bg-white',   icon:'ti-list',      label:'Track List\n─────\n☑ 1\n☑ 2\n○ 3', title:'Track List – Contenuti Q2', date:'26 Mar 2025', tags:['Instagram','In progress'],                   caption:'Pianificazione Q2. In lavorazione!', pinned:false },
-  { id:7,  bg:'cell-bg-black',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Dark Edition',      date:'28 Mar 2025', tags:['Instagram','Pubblicato','Offer and Service'], caption:'Versione dark di She Business.', pinned:false },
-  { id:8,  bg:'cell-bg-pink',    icon:'ti-heart',     label:'i love you\ni love you\ni love you', title:'Love Letter Post',         date:'02 Apr 2025', tags:['Instagram','Pubblicato'],                    caption:'Un post dedicato alla community ❤️', pinned:false },
-  { id:9,  bg:'cell-bg-red',     icon:'ti-armchair',  label:'Red\nChair',                 title:'Red Chair – Prop Shoot',           date:'05 Apr 2025', tags:['Instagram','In progress'],                   caption:'La sedia rossa iconica del brand.', pinned:false },
-  { id:10, bg:'cell-bg-darkred', icon:'ti-armchair',  label:'Red\nChair\nDark',           title:'Red Chair – Dark Version',         date:'07 Apr 2025', tags:['Instagram','Idea'],                          caption:'Variante scura, da approvare.', pinned:false },
-  { id:11, bg:'cell-bg-red',     icon:'',             label:'GIRLS\nCLUB',                title:'Girls Club – Second Drop',         date:'10 Apr 2025', tags:['Instagram','In progress','Reel'],            caption:'Secondo drop del format Girls Club.', pinned:false },
-  { id:12, bg:'cell-bg-brown',   icon:'ti-briefcase', label:'SHE\nBUSINESS',              title:'She Business – Summer Edition',    date:'12 Apr 2025', tags:['Instagram','Idea','Offer and Service'],      caption:'Concept edizione estiva.', pinned:false },
+const BGOPTS=['bg-red','bg-brown','bg-pink','bg-black','bg-gray','bg-darkred','bg-cream'];
+const ICONOPTS=['ti-brand-instagram','ti-briefcase','ti-heart','ti-camera','ti-bulb','ti-star','ti-user'];
+
+let posts=[
+  {id:1,img:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Reel Ideas: Founder Story + Behind the Scenes',date:'2025-03-11',tags:['Instagram','In progress','Reel'],cat:'Offer and Service',caption:'Reasons you need a business coach:\n✨ Clarify your business vision\n🎯 Set actionable, realistic goals\n💬 Gain unbiased, expert feedback\n⚡ Overcome obstacles and challenges\n👑 Strengthen leadership capabilities',hash:'#businesscoach #coaching #girlboss #womeninbusiness',pinned:false},
+  {id:2,img:'',slides:[],bg:'bg-brown',icon:'ti-briefcase',label:'SHE\nBUSINESS',title:'She Business – Cover Post',date:'2025-03-20',tags:['Instagram','Pubblicato','Offer and Service'],cat:'She Business',caption:'Il tuo business merita di brillare 💼\nLink in bio per scoprire di più.',hash:'#shebusiness #businesswoman',pinned:true},
+  {id:3,img:'',slides:[],bg:'bg-pink',icon:'ti-book',label:"Non sei\nun libro\nchiuso",title:'Motivational Quote – Carosello',date:'2025-03-22',tags:['Instagram','Pubblicato','Carosello'],cat:'Motivational',caption:'Smetti di sentirti un libro chiuso.\nLa tua storia merita di essere raccontata. 📖',hash:'#motivation #quotes #selfgrowth',pinned:false},
+  {id:4,img:'',slides:[],bg:'bg-black',icon:'ti-user',label:'Street\nStyle',title:'Street Style – Behind the Scenes Parigi',date:'2025-03-24',tags:['Instagram','Pubblicato','Reel'],cat:'Behind the Scenes',caption:'Shooting a Parigi 🇫🇷\nBehind the scenes del giorno più speciale.',hash:'#paris #streetstyle #ootd',pinned:false},
+  {id:5,img:'',slides:[],bg:'bg-gray',icon:'ti-list',label:'Track\nList Q2',title:'Track List – Contenuti Q2',date:'2025-03-26',tags:['Instagram','In progress'],cat:'',caption:'Pianificazione contenuti del secondo trimestre.',hash:'',pinned:false},
+  {id:6,img:'',slides:[],bg:'bg-pink',icon:'ti-heart',label:'i love you\ni love you',title:'Love Letter – Community Post',date:'2025-04-02',tags:['Instagram','Pubblicato'],cat:'',caption:'Un post dedicato alla community ❤️\nGrazie per essere qui.',hash:'#community #love #gratitude',pinned:false},
+  {id:7,img:'',slides:[],bg:'bg-darkred',icon:'ti-armchair',label:'Red\nChair\nDark',title:'Red Chair – Dark Version',date:'2025-04-07',tags:['Instagram','Idea'],cat:'',caption:'Variante scura del prop shoot. Ancora da approvare.',hash:'',pinned:false},
+  {id:8,img:'',slides:[],bg:'bg-red',icon:'',label:'GIRLS\nCLUB',title:'Girls Club – Second Drop',date:'2025-04-10',tags:['Instagram','In progress','Reel'],cat:'Girls Club',caption:'Secondo drop del format Girls Club.\nStiamo lavorando alla caption.',hash:'#girlsclub #community',pinned:false},
+  {id:9,img:'',slides:[],bg:'bg-cream',icon:'ti-bulb',label:'Idea\nBTS',title:'Behind the Scenes – Studio Day',date:'2025-04-15',tags:['Instagram','Idea','Carosello'],cat:'Behind the Scenes',caption:'Giornata in studio! Carosello con le foto del backstage.',hash:'#bts #studiosession',pinned:false},
 ];
 
-let filtered = [...posts];
+let filtered=[...posts];
+let nextId=10;
+let activePostId=null;
+let editMode=false;
+let currentImg='';
+let currentSlides=[];
+let carIdx=0;
+let carSlides=[];
 
-const statusColor = t => t.includes('Pubblicato')?'status-green':t.includes('In progress')?'status-yellow':t.includes('Idea')?'status-blue':'status-gray';
-const tagClass = t => ({Instagram:'tag tag-instagram',Reel:'tag tag-reel',Carosello:'tag tag-carosello','In progress':'tag tag-inprogress',Pubblicato:'tag tag-done',Idea:'tag tag-idea','Offer and Service':'tag tag-offer'}[t]||'tag tag-default');
+/* ── UTILS ── */
+function tagClass(t){return{Instagram:'tag t-ig',Reel:'tag t-reel',Carosello:'tag t-car','In progress':'tag t-prog',Pubblicato:'tag t-pub',Idea:'tag t-idea','Offer and Service':'tag t-off'}[t]||'tag t-def'}
+function statusClass(tags){return tags.includes('Pubblicato')?'s-green':tags.includes('In progress')?'s-yellow':tags.includes('Idea')?'s-blue':'s-gray'}
+function fmtDate(d){if(!d)return'';try{return new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})}catch{return d}}
 
-function renderGrid() {
-  document.getElementById('countBar').textContent = filtered.length + ' post';
-  document.getElementById('grid').innerHTML = filtered.map(p => `
-    <div class="cell" onclick="openModal(${p.id})">
-      <div class="cell-bg ${p.bg}">
-        ${p.icon?`<i class="ti ${p.icon}" aria-hidden="true" style="font-size:26px;margin-bottom:6px;"></i>`:''}
-        <span style="white-space:pre-line;line-height:1.3">${p.label}</span>
+function thumbContent(p){
+  if(p.img)return`<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/>`;
+  return`<div class="placeholder ${p.bg}">${p.icon?`<i class="ti ${p.icon}" style="font-size:26px;margin-bottom:6px"></i>`:''}<span style="white-space:pre-line;line-height:1.3">${p.label}</span></div>`;
+}
+
+/* ── GRID ── */
+function renderGrid(){
+  document.getElementById('countBar').textContent=filtered.length+' post';
+  document.getElementById('grid').innerHTML=filtered.map(p=>`
+    <div class="post-card" onclick="openDetail(${p.id})">
+      <div class="post-thumb">
+        ${thumbContent(p)}
+        ${p.tags.includes('Reel')?`<div class="badge-reel"><i class="ti ti-player-play" style="font-size:9px"></i> Reel</div>`:''}
+        ${p.tags.includes('Carosello')?`<div class="badge-car"><i class="ti ti-layout-columns" style="font-size:9px"></i>${p.slides.length?` ${p.slides.length+1}`:''}</div>`:''}
+        ${p.tags.includes('Reel')?`<div class="play-overlay"><i class="ti ti-player-play-filled"></i></div>`:''}
+        <div class="dot-status ${statusClass(p.tags)}"></div>
       </div>
-      <div class="cell-status ${statusColor(p.tags)}"></div>
-      ${p.pinned?`<i class="ti ti-pin cell-pin" aria-hidden="true"></i>`:''}
-      <div class="cell-overlay"><i class="ti ti-eye" aria-hidden="true"></i></div>
+      <div class="post-info">
+        <div class="post-info-title">${p.title}</div>
+        <div class="post-info-date">${fmtDate(p.date)}</div>
+        <div class="post-info-tags">
+          ${p.tags.filter(t=>t!=='Instagram').map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('')}
+          ${p.cat?`<span class="tag t-off">${p.cat}</span>`:''}
+        </div>
+      </div>
     </div>`).join('');
 }
 
-function setFilter(f, el) {
-  document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));
+function setFilter(f,el){
+  document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  filtered = f==='all' ? [...posts] : posts.filter(p=>p.tags.includes(f));
-  closeModal(); renderGrid();
+  filtered=f==='all'?[...posts]:posts.filter(p=>p.tags.includes(f)||p.cat===f);
+  renderGrid();
 }
 
-function openModal(id) {
-  const p = posts.find(x=>x.id===id); if(!p) return;
-  document.getElementById('modalTitle').textContent = p.title;
-  document.getElementById('modalDate').textContent = p.date;
-  document.getElementById('modalCaption').textContent = p.caption;
-  document.getElementById('modalTags').innerHTML = p.tags.map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('');
-  const mi = document.getElementById('modalImg');
-  mi.className = 'modal-img '+p.bg;
-  mi.innerHTML = `
-    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x" aria-hidden="true"></i></button>
-    ${p.icon?`<i class="ti ${p.icon}" aria-hidden="true" style="font-size:34px;margin-bottom:8px;"></i>`:''}
-    <span style="white-space:pre-line;line-height:1.3">${p.label}</span>`;
-  const m = document.getElementById('modal');
-  m.classList.add('open');
-  m.scrollIntoView({behavior:'smooth',block:'nearest'});
+/* ── CAROUSEL LOGIC ── */
+function buildCarousel(p){
+  carSlides=[];
+  // slide 0 = cover
+  carSlides.push({img:p.img,bg:p.bg,icon:p.icon,label:p.label});
+  // extra slides
+  (p.slides||[]).forEach(s=>carSlides.push({img:s,bg:'bg-black',icon:'',label:''}));
+  carIdx=0;
+  renderCarousel();
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function renderCarousel(){
+  const track=document.getElementById('carTrack');
+  track.innerHTML=carSlides.map((s,i)=>{
+    if(s.img) return`<div class="carousel-slide-item"><img src="${s.img}" alt="slide ${i+1}"/></div>`;
+    return`<div class="carousel-slide-item"><div class="placeholder ${s.bg}">${s.icon?`<i class="ti ${s.icon}" style="font-size:34px;margin-bottom:10px"></i>`:''}<span style="white-space:pre-line;line-height:1.3;font-size:15px">${s.label}</span></div></div>`;
+  }).join('');
+  updateCarPos(false);
 
-function refresh() {
-  const g = document.getElementById('grid');
-  g.style.opacity='0.4';
-  setTimeout(()=>{g.style.opacity='1'; renderGrid();},350);
+  // dots
+  const dots=document.getElementById('carDots');
+  if(carSlides.length>1){
+    dots.innerHTML=carSlides.map((_,i)=>`<div class="car-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+    dots.style.display='flex';
+  }else{dots.style.display='none';}
+
+  // arrows visibility
+  document.getElementById('carPrev').style.display=carSlides.length>1?'flex':'none';
+  document.getElementById('carNext').style.display=carSlides.length>1?'flex':'none';
 }
 
-function openAdd() {
-  sendPrompt('Voglio aggiungere un nuovo post alla griglia Instagram. Aiutami con: titolo, data, tipo (Reel/Carosello/Foto), stato (In progress/Idea/Pubblicato) e caption.');
+function updateCarPos(animate=true){
+  const track=document.getElementById('carTrack');
+  track.style.transition=animate?'transform .35s cubic-bezier(.4,0,.2,1)':'none';
+  track.style.transform=`translateX(${-carIdx*100}%)`;
+  document.getElementById('carPrev').disabled=carIdx===0;
+  document.getElementById('carNext').disabled=carIdx===carSlides.length-1;
+  document.querySelectorAll('.car-dot').forEach((d,i)=>d.classList.toggle('active',i===carIdx));
 }
+
+function carMove(dir){carIdx=Math.max(0,Math.min(carSlides.length-1,carIdx+dir));updateCarPos();}
+function goSlide(i){carIdx=i;updateCarPos();}
+
+/* ── DETAIL MODAL ── */
+function openDetail(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  activePostId=id;
+  buildCarousel(p);
+  // reel badge
+  document.getElementById('reelBadge').style.display=p.tags.includes('Reel')?'flex':'none';
+  document.getElementById('dTitle').textContent=p.title;
+  document.getElementById('dDate').textContent=fmtDate(p.date);
+  document.getElementById('dTags').innerHTML=[...p.tags,p.cat].filter(Boolean).map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('');
+  document.getElementById('dCaption').textContent=p.caption||'–';
+  const hb=document.getElementById('dHashBlock');
+  if(p.hash){document.getElementById('dHash').textContent=p.hash;hb.style.display='block';}else{hb.style.display='none';}
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetailEv(e){if(e.target===document.getElementById('detailOverlay'))closeDetail();}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');activePostId=null;}
+
+function editPost(){
+  const p=posts.find(x=>x.id===activePostId);if(!p)return;
+  closeDetail(); editMode=true; currentImg=p.img||''; currentSlides=[...(p.slides||[])];
+  document.getElementById('formTitle').textContent='Modifica post';
+  document.getElementById('fTitle').value=p.title;
+  document.getElementById('fDate').value=p.date;
+  document.getElementById('fType').value=p.tags.includes('Reel')?'Reel':p.tags.includes('Carosello')?'Carosello':'Foto';
+  document.getElementById('fStatus').value=p.tags.includes('Pubblicato')?'Pubblicato':p.tags.includes('In progress')?'In progress':'Idea';
+  document.getElementById('fCat').value=p.cat||'';
+  document.getElementById('fCaption').value=p.caption||'';
+  document.getElementById('fHash').value=p.hash||'';
+  document.getElementById('imgUrl').value='';
+  const prev=document.getElementById('imgPreview');
+  if(currentImg){prev.src=currentImg;prev.style.display='block';}else{prev.style.display='none';}
+  toggleCar(document.getElementById('fType').value);
+  renderSlidesPreview();
+  document.getElementById('addOverlay').classList.add('open');
+}
+
+function deletePost(){
+  if(!confirm('Eliminare questo post?'))return;
+  posts=posts.filter(x=>x.id!==activePostId);
+  filtered=filtered.filter(x=>x.id!==activePostId);
+  closeDetail(); renderGrid();
+}
+
+/* ── ADD MODAL ── */
+function openAdd(){
+  editMode=false; currentImg=''; currentSlides=[];
+  activePostId=null;
+  document.getElementById('formTitle').textContent='Nuovo post';
+  ['fTitle','fCaption','fHash','imgUrl'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fDate').value='';
+  document.getElementById('fType').value='Foto';
+  document.getElementById('fStatus').value='Idea';
+  document.getElementById('fCat').value='';
+  document.getElementById('imgPreview').style.display='none';
+  toggleCar('Foto'); renderSlidesPreview();
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAdd(){document.getElementById('addOverlay').classList.remove('open');}
+function closeAddEv(e){if(e.target===document.getElementById('addOverlay'))closeAdd();}
+
+function handleImg(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{currentImg=e.target.result;showPrev(currentImg);};r.readAsDataURL(f);
+}
+function handleUrl(v){if(v){currentImg=v;showPrev(v);}}
+function showPrev(src){const p=document.getElementById('imgPreview');p.src=src;p.style.display='block';}
+
+function handleSlides(inp){
+  Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{currentSlides.push(e.target.result);renderSlidesPreview();};r.readAsDataURL(f);});
+}
+function removeSlide(i){currentSlides.splice(i,1);renderSlidesPreview();}
+function renderSlidesPreview(){
+  document.getElementById('slidesPreview').innerHTML=currentSlides.map((s,i)=>`
+    <div class="slide-thumb"><img src="${s}"/><button class="slide-del" onclick="removeSlide(${i})"><i class="ti ti-x" style="font-size:8px"></i></button></div>`).join('');
+}
+function toggleCar(v){document.getElementById('slidesSection').style.display=v==='Carosello'?'block':'none';}
+
+function savePost(){
+  const title=document.getElementById('fTitle').value.trim()||'Nuovo post';
+  const date=document.getElementById('fDate').value;
+  const type=document.getElementById('fType').value;
+  const status=document.getElementById('fStatus').value;
+  const cat=document.getElementById('fCat').value;
+  const caption=document.getElementById('fCaption').value.trim();
+  const hash=document.getElementById('fHash').value.trim();
+  const tags=['Instagram',status,...(type!=='Foto'?[type]:[])];
+  if(editMode&&activePostId){
+    const p=posts.find(x=>x.id===activePostId);
+    if(p)Object.assign(p,{title,date,tags,cat,caption,hash,img:currentImg,slides:currentSlides});
+  }else{
+    const bg=BGOPTS[nextId%BGOPTS.length];
+    const icon=ICONOPTS[nextId%ICONOPTS.length];
+    const label=title.split(' ').slice(0,2).join('\n');
+    posts.unshift({id:nextId++,img:currentImg,slides:[...currentSlides],bg,icon,label,title,date,tags,cat,caption,hash,pinned:false});
+  }
+  filtered=[...posts];
+  document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.ftag').classList.add('active');
+  closeAdd(); renderGrid();
+}
+
+function refresh(){const g=document.getElementById('grid');g.style.opacity='.4';setTimeout(()=>{g.style.opacity='1';renderGrid();},300);}
 
 renderGrid();
 </script>
+</body>
+</html>
